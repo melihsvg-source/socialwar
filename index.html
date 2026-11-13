@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Wars — Tam Kodeks Strateji (145 Bina + 303 Birim)</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #151e30;
+      --panel-2: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --gold: #facc15;
+      --wood: #d97706;
+      --oil: #38bdf8;
+      --steel: #cbd5e1;
+      --cash: #4ade80;
+      --accent: #3b82f6;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .level-badge {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border: 2px solid #60a5fa;
+      border-radius: 10px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 64px;
+    }
+    .level-badge small { display: block; font-size: 9px; color: #bfdbfe; text-transform: uppercase; }
+    .level-badge strong { font-size: 16px; }
+    .xp-wrap { width: 120px; }
+    .xp-wrap span { font-size: 11px; color: var(--muted); }
+    .bar-bg { height: 7px; background: #090e1a; border-radius: 99px; overflow: hidden; border: 1px solid var(--border); margin-top: 3px; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #22d3ee); width: 0%; transition: width .2s; }
+
+    .resources { display: flex; flex-wrap: wrap; gap: 6px; }
+    .res-chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 9px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .dot.gold { background: var(--gold); }
+    .dot.wood { background: var(--wood); }
+    .dot.oil { background: var(--oil); }
+    .dot.steel { background: var(--steel); }
+    .dot.cash { background: var(--cash); }
+    .dot.pop { background: #c084fc; }
+
+    .top-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    button {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: .12s;
+    }
+    button:hover:not(:disabled) { border-color: #60a5fa; background: #2c3b52; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.primary { background: #2563eb; border-color: #3b82f6; }
+    button.primary:hover:not(:disabled) { background: #1d4ed8; }
+    button.success { background: #15803d; border-color: #22c55e; }
+    button.warn { background: #854d0e; border-color: #eab308; }
+    button.danger { background: #991b1b; border-color: #ef4444; }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 340px 1fr 290px;
+      gap: 10px;
+      padding: 10px;
+      max-width: 1640px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    @media (max-width: 1200px) { main { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .panel h2 {
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tabs button { flex: 1 1 auto; padding: 5px 7px; font-size: 11px; }
+    .tabs button.active { background: var(--accent); border-color: #60a5fa; }
+
+    .search-input {
+      width: 100%;
+      padding: 6px 9px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 525px;
+      overflow-y: auto;
+      padding-right: 3px;
+    }
+    .item-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .item-card.selected { border-color: #38bdf8; box-shadow: 0 0 0 1px #38bdf8; }
+    .item-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .item-head strong { font-size: 12.5px; }
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #0b1220;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .costs { font-size: 11px; color: #e2e8f0; }
+    .stats-mini { font-size: 11px; color: var(--muted); line-height: 1.35; }
+
+    .map-panel { align-items: center; }
+    .map-toolbar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .quest-bar {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #1d4ed8;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: #bfdbfe;
+    }
+    .status-pill {
+      font-size: 11.5px;
+      padding: 5px 10px;
+      border-radius: 99px;
+      background: #0b1220;
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+    }
+    canvas {
+      background: #14532d;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      max-width: 100%;
+      height: auto;
+      cursor: crosshair;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+    }
+    .hint { font-size: 11.5px; color: var(--muted); text-align: center; }
+
+    .inspector {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .log-box {
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px;
+      height: 175px;
+      overflow-y: auto;
+      font-size: 11.5px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .log-entry { color: #cbd5e1; }
+    .log-entry.good { color: #4ade80; }
+    .log-entry.bad { color: #f87171; }
+    .log-entry.info { color: #38bdf8; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      max-width: 1100px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-body { padding: 12px 16px; overflow-y: auto; }
+    .codex-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .codex-card {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px;
+      font-size: 11.5px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .stat-table { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; color: var(--muted); }
+    .stat-table span b { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="level-badge">
+      <small>Seviye</small>
+      <strong id="ui-level">1</strong>
+    </div>
+    <div class="xp-wrap">
+      <span id="ui-xp-text">XP 0 / 100</span>
+      <div class="bar-bg"><div class="bar-fill" id="ui-xp-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="resources">
+    <div class="res-chip"><span class="dot gold"></span> Gold: <span id="res-gold">0</span></div>
+    <div class="res-chip"><span class="dot wood"></span> Wood: <span id="res-wood">0</span></div>
+    <div class="res-chip"><span class="dot steel"></span> Steel: <span id="res-steel">0</span></div>
+    <div class="res-chip"><span class="dot oil"></span> Oil: <span id="res-oil">0</span></div>
+    <div class="res-chip"><span class="dot cash"></span> Cash: <span id="res-cash">0</span></div>
+    <div class="res-chip"><span class="dot pop"></span> Pop: <span id="res-pop">0 / 0</span></div>
+  </div>
+
+  <div class="top-actions">
+    <button onclick="collectAll()">Tümünü Topla</button>
+    <button class="warn" onclick="sandboxBoost()" title="Yüksek seviye yapıları ve Cash birimlerini test etmek için +Kaynak / +5 Sv. verir">Sandbox (+Kaynak / +5 Sv.)</button>
+    <button class="primary" onclick="openCodex()">Códice (145 Bina · 303 Birim)</button>
+    <button class="danger" onclick="resetGame()">Sıfırla</button>
+  </div>
+</header>
+
+<main>
+  <!-- SOL PANEL -->
+  <section class="panel">
+    <h2>İnşaat ve Ordu</h2>
+    <div class="tabs">
+      <button id="tab-main-build" class="active" onclick="setMainTab('build')">Binalar (145)</button>
+      <button id="tab-main-train" onclick="setMainTab('train')">Birim Eğit (303)</button>
+    </div>
+
+    <div id="cat-tabs" class="tabs">
+      <button class="active" onclick="setCatTab('All')">Tümü</button>
+      <button onclick="setCatTab('Village')">Village</button>
+      <button onclick="setCatTab('Defense')">Defense</button>
+      <button onclick="setCatTab('Army')">Army</button>
+      <button onclick="setCatTab('Wonders')">Wonders</button>
+      <button onclick="setCatTab('Decorations')">Decor</button>
+      <button onclick="setCatTab('Limited Edition')">Limited</button>
+    </div>
+
+    <div id="unit-tabs" class="tabs" style="display:none;">
+      <button class="active" onclick="setUnitFilter('ready')">Hazır (Üs)</button>
+      <button onclick="setUnitFilter('cash')">Cash / Ejder &amp; Mech</button>
+      <button onclick="setUnitFilter('special')">Özel Birimler</button>
+      <button onclick="setUnitFilter('all')">Tümü (303)</button>
+    </div>
+
+    <input id="left-search" class="search-input" placeholder="İsim veya bina ile ara (ör: Tank, Dragon, Mech)..." oninput="renderLeftPanel()" />
+    <div id="left-list" class="card-list"></div>
+  </section>
+
+  <!-- ORTA PANEL -->
+  <section class="panel map-panel">
+    <div class="quest-bar">
+      <span id="quest-text">Hedef 1/5: Gold Factory I kur veya depodan kaynak topla</span>
+      <span id="quest-reward" class="badge">Ödül: +200 Gold, +40 XP</span>
+    </div>
+    <div class="map-toolbar">
+      <div class="status-pill" id="mode-pill">Mod: Seçim / Toplama (34×22 Izgara)</div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button id="btn-cancel-build" style="display:none;" onclick="cancelBuildMode()">İptal (ESC)</button>
+        <button id="btn-mission" class="success" onclick="startMission()">Görev Başlat (Dalga 1)</button>
+      </div>
+    </div>
+    <canvas id="gameCanvas" width="816" height="528"></canvas>
+    <div class="hint">
+      <b>İpucu:</b> <i>Birim Eğit &gt; Cash / Ejder &amp; Mech</i> sekmesinden Ejderha ve Mech kiralayabilir, fabrikalara tıklayarak üretim toplayabilir, <i>Sandbox</i> ile her seviyeyi test edebilirsin.
+    </div>
+  </section>
+
+  <!-- SAĞ PANEL -->
+  <section class="panel">
+    <h2>Seçili Yapı</h2>
+    <div id="inspector" class="inspector">
+      <strong>Seçili Yapı Yok</strong>
+      <span style="color:var(--muted)">Haritadan bir binaya tıkla; canını gör, kaynağını topla veya kaldır.</span>
+    </div>
+
+    <h2>Ordu <span id="army-count" class="badge">0 Birim</span></h2>
+    <div id="army-summary" class="inspector" style="max-height:145px; overflow-y:auto;">Henüz birim yok.</div>
+
+    <h2>Savaş ve Üs Kaydı</h2>
+    <div id="log-box" class="log-box"></div>
+  </section>
+</main>
+
+<!-- KODEKS MODALI -->
+<div id="codex-modal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 style="font-size:15px;">Social Wars — Gerçek Oyun Kodeksi (145 Bina · 303 Birim)</h3>
+        <small style="color:var(--muted)">Paylaşılan gerçek oyun konfigürasyonundan birebir okunmuş veriler</small>
+      </div>
+      <button onclick="closeCodex()">Kapat</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs" id="codex-cat-tabs">
+        <button class="active" onclick="setCodexCat('Units')">Birimler (303)</button>
+        <button onclick="setCodexCat('All')">Tüm Binalar (145)</button>
+        <button onclick="setCodexCat('Village')">Village</button>
+        <button onclick="setCodexCat('Defense')">Defense</button>
+        <button onclick="setCodexCat('Army')">Army</button>
+        <button onclick="setCodexCat('Wonders')">Wonders</button>
+        <button onclick="setCodexCat('Decorations')">Decorations</button>
+        <button onclick="setCodexCat('Limited Edition')">Limited Edition</button>
+      </div>
+      <input id="codex-search" class="codex-search search-input" style="margin-top:8px;" placeholder="Kodekste ara (ör: Dragon, Fortress, Tank, Nebular)..." oninput="renderCodex()" />
+      <div id="codex-grid" class="codex-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+ * 1. BİNA VERİTABANI (145 Bina)
+ * [name, section, sub, costType, costVal, level, size, life, attack, range, population, trains]
+ * ==========================================================================*/
+const RAW_BUILDINGS = [
+  ["Command Center","Village","Headquarters","Gold",0,1,4,2500,10,8,10,"Worker I"],
+  ["Corn field","Village","Fields & Farms","Wood",60,2,4,100,0,0,5,null],
+  ["Grape field","Village","Fields & Farms","Wood",120,8,4,100,0,0,0,null],
+  ["Cow farm","Village","Fields & Farms","Wood",200,14,5,140,0,0,0,null],
+  ["House I","Village","Houses","Wood",30,1,2,180,0,0,3,null],
+  ["House II","Village","Houses","Wood",60,6,2,200,0,0,4,null],
+  ["House III","Village","Houses","Wood",120,19,2,220,0,0,5,null],
+  ["Market I","Village","Miscellaneous","Wood",350,5,4,500,0,0,0,null],
+  ["Recon center","Village","Miscellaneous","Steel",100,7,4,500,0,0,0,null],
+  ["Auction House","Village","Miscellaneous","Gold",500,8,4,3000,0,0,0,null],
+  ["Robotic Center","Village","Miscellaneous","Gold",3000,8,3,400,0,0,0,null],
+  ["Recruitment Prize","Village","Miscellaneous","Wood",50,8,3,750,0,0,0,null],
+  ["Hospital","Village","Miscellaneous","Gold",2000,9,4,800,0,0,0,null],
+  ["Allies Building","Village","Miscellaneous","Wood",150,10,4,500,0,0,0,null],
+  ["Market II","Village","Miscellaneous","Gold",500,11,4,500,0,0,0,null],
+  ["Allies Market","Village","Miscellaneous","Wood",350,12,4,500,0,0,0,null],
+  ["Market III","Village","Miscellaneous","Gold",10000,25,4,500,0,0,0,null],
+  ["Area 51","Village","Miscellaneous","Gold",3000,30,5,400,0,0,0,null],
+  ["Research Lab","Village","Miscellaneous","Gold",500,35,5,3000,0,0,0,null],
+  ["Wood Factory I","Village","Factories","Wood",50,1,2,200,0,0,0,null],
+  ["Gold Factory I","Village","Factories","Wood",100,2,2,200,0,0,0,null],
+  ["Steel Factory I","Village","Factories","Wood",100,4,2,200,0,0,0,null],
+  ["Oil Factory I","Village","Factories","Wood",100,5,2,200,0,0,0,null],
+  ["Wood Factory II","Village","Factories","Wood",200,11,2,240,0,0,0,null],
+  ["Gold Factory II","Village","Factories","Wood",200,13,2,240,0,0,0,null],
+  ["Steel Factory II","Village","Factories","Wood",200,16,2,250,0,0,0,null],
+  ["Oil Factory II","Village","Factories","Wood",200,17,2,240,0,0,0,null],
+  ["Wood Factory III","Village","Factories","Gold",6000,21,3,300,0,0,0,null],
+  ["Gold Factory III","Village","Factories","Gold",4500,24,3,300,0,0,0,null],
+  ["Steel Factory III","Village","Factories","Gold",1500,27,3,300,0,0,0,null],
+  ["Oil Factory III","Village","Factories","Gold",7500,30,3,300,0,0,0,null],
+  ["Wood Factory IV","Village","Factories","Gold",15000,34,3,450,0,0,0,null],
+  ["Gold Factory IV","Village","Factories","Gold",20000,37,3,450,0,0,0,null],
+  ["Steel Factory IV","Village","Factories","Gold",10000,39,3,450,0,0,0,null],
+  ["Oil Factory IV","Village","Factories","Gold",24000,42,3,450,0,0,0,null],
+  ["Silo","Village","Silos","Wood",150,3,3,180,0,0,20000,null],
+  ["Silo II","Village","Silos","Steel",500,15,3,180,0,0,25000,null],
+  ["Silo III","Village","Silos","Steel",5000,28,4,180,0,0,30000,null],
+
+  ["Bunker I","Defense","Bunkers","Gold",250,4,2,600,8,7,0,null],
+  ["Mega Bunker","Defense","Bunkers","Cash",12,10,3,2000,18,10,0,null],
+  ["Bunker II","Defense","Bunkers","Gold",500,13,2,1300,10,8,0,null],
+  ["Bunker III","Defense","Bunkers","Gold",1000,19,3,800,14,9,0,null],
+  ["Special Fortress","Defense","Fortresses","Cash",15,1,4,5000,22,11,0,"Double Gun Soldier"],
+  ["Rocket Fortress","Defense","Fortresses","Cash",25,9,4,8000,26,12,0,"Double Bazooka Jeep"],
+  ["Fortress I","Defense","Fortresses","Gold",20000,20,4,4000,18,10,0,null],
+  ["Mega Fortress","Defense","Fortresses","Cash",30,24,5,12000,30,13,0,"APC"],
+  ["Turret I","Defense","Turrets","Steel",125,3,1,300,5,8,0,null],
+  ["Turret II","Defense","Turrets","Steel",250,5,1,500,8,9,0,null],
+  ["Dual-Rocket Turret","Defense","Turrets","Cash",9,8,1,1600,20,12,0,null],
+  ["Turret III","Defense","Turrets","Steel",375,8,1,700,12,10,0,null],
+  ["Cannon Turret","Defense","Turrets","Cash",7,13,1,1500,18,12,0,null],
+  ["Turret IV","Defense","Turrets","Steel",500,16,1,900,14,11,0,null],
+  ["Turret V","Defense","Turrets","Steel",625,22,1,1100,16,12,0,null],
+  ["Turret VI","Defense","Turrets","Steel",750,30,1,1200,18,13,0,null],
+  ["Wall I","Defense","Walls","Wood",5,2,1,150,0,0,0,null],
+  ["Wall II","Defense","Walls","Steel",15,9,1,400,0,0,0,null],
+  ["Wall III","Defense","Walls","Steel",30,17,1,600,0,0,0,null],
+  ["Wall IV","Defense","Walls","Steel",100,24,1,800,0,0,0,null],
+  ["Wall V","Defense","Walls","Steel",225,32,1,1000,0,0,0,null],
+
+  ["Helicopter Hangar I","Army","Aircrafts","Gold",300,18,3,400,0,0,0,"Helicopter"],
+  ["Hangar I","Army","Aircrafts","Gold",1500,25,5,400,0,0,0,"Aircraft"],
+  ["Helicopter Hangar II","Army","Aircrafts","Gold",450,29,3,800,0,0,0,"Helicopter II"],
+  ["Hangar II","Army","Aircrafts","Gold",2000,33,6,8000,0,0,0,"Aircraft II"],
+  ["Helicopter Hangar III","Army","Aircrafts","Gold",500,38,3,1000,0,0,0,"Helicopter III"],
+  ["Hangar III","Army","Aircrafts","Gold",3000,40,6,1000,0,0,0,"Aircraft III"],
+  ["Helicopter Hangar IV","Army","Aircrafts","Gold",1200,44,3,1250,0,0,0,"Helicopter IV"],
+  ["Helicopter Hangar V","Army","Aircrafts","Gold",1500,48,3,1500,0,0,0,"Helicopter V"],
+  ["Mortar Academy","Army","Siege","Steel",600,17,3,400,0,0,0,"Mortar Thrower"],
+  ["Demolition Tank Academy","Army","Siege","Gold",800,50,3,1500,0,0,0,"Demolition Tank"],
+  ["Academy I","Army","Soldiers","Wood",125,1,3,300,0,0,0,"Soldier"],
+  ["Bazooka Academy I","Army","Soldiers","Wood",150,3,3,300,0,0,0,"Bazooka"],
+  ["Academy II","Army","Soldiers","Wood",250,7,4,350,0,0,0,"Soldier II"],
+  ["Bazooka Academy II","Army","Soldiers","Wood",300,10,4,350,0,0,0,"Bazooka II"],
+  ["Academy III","Army","Soldiers","Wood",375,21,5,400,0,0,0,"Soldier III"],
+  ["Bazooka Academy III","Army","Soldiers","Wood",450,23,5,400,0,0,0,"Bazooka III"],
+  ["Academy IV","Army","Soldiers","Wood",600,28,4,600,0,0,0,"Soldier IV"],
+  ["Bazooka Academy IV","Army","Soldiers","Wood",600,30,4,600,0,0,0,"Bazooka IV"],
+  ["Academy V","Army","Soldiers","Wood",1000,34,4,1000,0,0,0,"Soldier V"],
+  ["Bazooka Academy V","Army","Soldiers","Wood",1000,37,4,1000,0,0,0,"Bazooka V"],
+  ["Fireman Academy","Army","Specials","Gold",400,8,3,1000,0,0,0,"Fireman"],
+  ["Flamethrower Academy","Army","Specials","Cash",14,10,3,400,0,0,0,"Flamethrower"],
+  ["Dominion Tank Academy","Army","Specials","Cash",18,10,5,400,0,0,0,"Dominion Tank"],
+  ["Stealth Fighter Hangar","Army","Specials","Cash",22,10,5,1000,0,0,0,"Stealth Fighter"],
+  ["Field Hospital","Army","Specials","Wood",400,15,3,500,0,0,0,"Medic"],
+  ["Mechanical Garage","Army","Specials","Steel",1200,20,3,1000,0,0,0,"Engineer"],
+  ["Antiaircraft garage","Army","Specials","Gold",1100,22,4,500,0,0,0,"Antiaircraft battery"],
+  ["Jeep garage I","Army","Vehicles","Wood",150,5,3,300,0,0,0,"Machine Gun Jeep"],
+  ["Tank Academy I","Army","Vehicles","Gold",300,12,3,300,0,0,0,"Tank"],
+  ["Jeep garage II","Army","Vehicles","Wood",300,15,4,350,0,0,0,"Machine Gun Jeep II"],
+  ["Tank Academy II","Army","Vehicles","Gold",350,27,4,350,0,0,0,"Tank II"],
+  ["Jeep garage III","Army","Vehicles","Wood",450,31,5,400,0,0,0,"Machine Gun Jeep III"],
+  ["Tank Academy III","Army","Vehicles","Gold",400,36,5,500,0,0,0,"Tank III"],
+  ["Tank Academy IV","Army","Vehicles","Gold",1000,46,4,800,0,0,0,"Tank IV"],
+  ["Tank Academy V","Army","Vehicles","Gold",400,54,4,1150,0,0,0,"Tank V"],
+
+  ["Sponge bush","Decorations","Flowers","Wood",30,2,1,400,0,0,0,null],
+  ["General Sculpture","Decorations","Flowers","Cash",10,2,2,400,0,0,0,null],
+  ["White Flowers","Decorations","Flowers","Gold",20,4,1,5,0,0,0,null],
+  ["Red flowers","Decorations","Flowers","Wood",30,6,1,400,0,0,0,null],
+  ["Skyscraper","Decorations","Flowers","Gold",250000,8,3,400,0,0,0,null],
+  ["Bush","Decorations","Flowers","Wood",30,8,1,400,0,0,0,null],
+  ["Red Leaf flowers","Decorations","Flowers","Wood",30,9,1,400,0,0,0,null],
+  ["Pink Leaf flowers","Decorations","Flowers","Wood",30,11,1,400,0,0,0,null],
+  ["Blue Leaf flowers","Decorations","Flowers","Gold",275,12,1,5,0,0,0,null],
+  ["Blue flowers","Decorations","Flowers","Gold",225,13,1,5,0,0,0,null],
+  ["Victory Arch","Decorations","Others","Cash",5,1,2,400,0,0,0,null],
+  ["Fountain","Decorations","Others","Cash",10,1,3,400,0,0,0,null],
+  ["Little fountain","Decorations","Others","Cash",1,5,1,150,0,0,0,null],
+  ["Lamp","Decorations","Others","Gold",50,10,1,5,0,0,0,null],
+  ["Sculpture","Decorations","Statues","Cash",7,1,3,400,0,0,0,null],
+  ["Pear tree","Decorations","Trees","Wood",30,3,1,400,0,0,0,null],
+  ["Apple tree","Decorations","Trees","Gold",50,14,1,5,0,0,0,null],
+
+  ["Cash Wonder","Wonders","Wonders","Cash",50,1,3,3000,0,0,100,null],
+  ["Parliament","Wonders","Wonders","Cash",70,1,4,3000,0,0,75,null],
+  ["Babilonian Temple","Wonders","Wonders","Cash",70,1,4,3000,0,0,75,null],
+  ["Stoneage","Wonders","Wonders","Cash",20,1,3,3000,0,0,0,null],
+  ["Iguazu","Wonders","Wonders","Cash",20,1,3,3000,0,0,0,null],
+  ["Sphynx","Wonders","Wonders","Cash",20,1,3,3000,0,0,0,null],
+  ["Ankor","Wonders","Wonders","Cash",20,1,3,2000,0,0,0,null],
+  ["Chichenitza","Wonders","Wonders","Cash",40,6,4,3000,0,0,0,null],
+  ["Inca God","Wonders","Wonders","Cash",40,8,3,3000,0,0,0,null],
+  ["Machu Picchu","Wonders","Wonders","Cash",40,10,3,3000,0,0,0,null],
+  ["Babilonia","Wonders","Wonders","Cash",40,12,5,2000,0,0,50,null],
+
+  ["Nebular Priest Academy","Limited Edition","Limited","Cash",32,8,4,1500,0,0,0,"Nebular Priest"],
+  ["Viking Airship Hangar","Limited Edition","Limited","Cash",30,8,4,1500,0,0,0,"Viking Airship"],
+  ["Elf Airship Hangar","Limited Edition","Limited","Cash",28,8,4,1500,0,0,0,"Space Airship Elf"],
+  ["Nebular Dragon Knight Academy","Limited Edition","Limited","Cash",34,8,4,1500,0,0,0,"Nebular Dragon Knight"],
+  ["Dino Rider Elf Academy","Limited Edition","Limited","Cash",32,8,4,1000,0,0,0,"Dino Rider Elf"],
+  ["Nebular Bicopter Hangar","Limited Edition","Limited","Cash",32,8,4,1500,0,0,0,"Nebular Bicopter"],
+  ["Viking MotoSquad Academy","Limited Edition","Limited","Cash",28,8,4,1000,0,0,0,"Viking MotoSquad"],
+  ["Elf Siege Striker Academy","Limited Edition","Limited","Cash",40,8,4,1000,0,0,0,"Siege Striker"],
+  ["Nebular Sniper Academy","Limited Edition","Limited","Cash",34,8,4,1500,0,0,0,"Nebular Sniper"],
+  ["Nebular Dragon Rider Academy","Limited Edition","Limited","Cash",34,8,3,1500,0,0,0,"Nebular Dragon Rider"],
+  ["Horned Alien Nest","Limited Edition","Limited","Cash",32,8,4,1500,0,0,0,"Horned Alien"],
+  ["Viking Tank Academy","Limited Edition","Limited","Cash",28,8,4,1500,0,0,0,"Viking Tank"],
+  ["Kamikaze Academy","Limited Edition","Limited","Cash",38,8,4,2500,0,0,0,"Kamikaze"],
+  ["Greatsword Warrior Academy","Limited Edition","Limited","Cash",30,8,4,1000,0,0,0,"Greatsword Warrior"],
+  ["Bear Knight Academy","Limited Edition","Limited","Cash",24,8,4,1000,0,0,0,"Viking Bear Knight"],
+  ["Viking Hammerer Factory","Limited Edition","Limited","Cash",22,8,4,1000,0,0,0,"Viking Hammerer"],
+  ["Viking Core Factory","Limited Edition","Limited","Cash",34,8,4,1000,0,0,0,"Viking Core Bot"],
+  ["Rune Golem Academy","Limited Edition","Limited","Cash",34,8,4,2500,0,0,0,"Rune Golem"],
+  ["Blazing Beast Rider Academy","Limited Edition","Limited","Cash",34,8,4,1500,0,0,0,"Blazing Beast Rider"],
+  ["Shredder Alien Nest","Limited Edition","Limited","Cash",32,8,4,1500,0,0,0,"Shredder Alien"],
+  ["Nebular Rider Academy","Limited Edition","Limited","Cash",30,8,4,1000,0,0,0,"Nebular Rider"],
+  ["Viking Sniper Academy","Limited Edition","Limited","Cash",28,8,4,2500,0,0,0,"Viking Sniper"],
+  ["Space Elf Scouter Hangar","Limited Edition","Limited","Cash",28,8,4,1500,0,0,0,"Space Scouter Elf"],
+  ["Reptile Gun Academy","Limited Edition","Limited","Cash",35,8,4,1500,0,0,0,"Reptile Gun"],
+  ["Punisher Bot Factory","Limited Edition","Limited","Cash",32,8,4,1000,0,0,0,"Punisher Bot"],
+  ["MegaBot Academy","Limited Edition","Limited","Cash",32,8,4,1500,0,0,0,"MegaBot"],
+  ["GunBot Academy","Limited Edition","Limited","Cash",30,8,4,1500,0,0,0,"GunBot"],
+  ["Viking Turret II","Limited Edition","Limited","Cash",10,8,1,1750,23,12,0,null],
+  ["Claw Spider Hive","Limited Edition","Limited","Gold",9000,8,4,1500,0,0,0,"Claw Spider"],
+  ["Nebular Archer Academy","Limited Edition","Limited","Gold",7500,8,4,1000,0,0,0,"Nebular Archer"],
+  ["Space Archer Elf Academy","Limited Edition","Limited","Gold",7500,8,4,1000,0,0,0,"Space Archer Elf"],
+  ["Viking Soldier Academy","Limited Edition","Limited","Gold",6500,8,4,1000,0,0,0,"Viking Soldier"],
+  ["Priest Elf Academy","Limited Edition","Limited","Gold",50000,8,4,1500,0,0,0,"Space Priest Elf"],
+  ["Poison Spider Hive","Limited Edition","Limited","Gold",8500,8,4,1500,0,0,0,"Poison Spider"],
+  ["Nebular Spearman Academy","Limited Edition","Limited","Gold",7200,8,4,1000,0,0,0,"Nebular Spearman"],
+  ["Acid Alien Nest","Limited Edition","Limited","Gold",9000,8,4,1500,0,0,0,"Acid Alien"],
+  ["Nebular Knight Academy","Limited Edition","Limited","Gold",8000,8,3,1500,0,0,0,"Nebular Knight"],
+  ["Viking Bazooka Academy","Limited Edition","Limited","Gold",7000,8,4,1000,0,0,0,"Viking Bazooka"],
+  ["Nebular Wall","Limited Edition","Limited","Cash",1,8,1,1000,0,0,0,null],
+  ["Ork Turret II","Limited Edition","Limited","Cash",10,8,1,1750,23,12,0,null],
+  ["Ork House","Limited Edition","Limited","Wood",60,8,2,200,0,0,4,null],
+  ["Magic Lake","Limited Edition","Limited","Cash",4,8,3,400,0,0,0,null],
+  ["Ork Wall","Limited Edition","Limited","Cash",1,8,1,1000,0,0,0,null],
+  ["Viking Field","Limited Edition","Limited","Gold",200,8,4,100,0,0,5,null],
+  ["Nebular House","Limited Edition","Limited","Wood",60,8,2,200,0,0,4,null]
+];
+
+/* ============================================================================
+ * 2. BİRİM VERİTABANI (303 Gerçek Kodeks Birimi)
+ * [name, c1Type, c1Val, c2Type, c2Val, attack, defense, life, speed, range, population, trainedIn]
+ * ==========================================================================*/
+const RAW_UNITS = [
+  ["2-Gun Exobot","Cash",10,null,0,49,1,1900,6,10,3,null],
+  ["2-Head Frostfire Draggy","Cash",4,null,0,26,1,475,8,11,2,null],
+  ["2-Head Frostfire Dragon","Cash",10,null,0,68,1,3000,7,12,4,null],
+  ["Acid Alien","Gold",600,"Oil",400,20,1,200,7,6,1,"Acid Alien Nest"],
+  ["Air Strike","Gold",300,"Oil",600,22,1,450,15,10,2,null],
+  ["Aircraft","Gold",150,"Oil",300,18,1,350,10,9,2,"Hangar I"],
+  ["Aircraft II","Gold",300,"Oil",600,22,1,450,10,10,2,"Hangar II"],
+  ["Aircraft III","Gold",600,"Oil",1200,25,1,600,10,11,2,"Hangar III"],
+  ["Aircraft IV","Gold",600,"Oil",1200,25,1,600,10,11,3,null],
+  ["Aircraft V","Gold",600,"Oil",1200,25,1,600,10,11,3,null],
+  ["Alien Instigator","Gold",75,"Steel",150,45,1,1700,5,1,1,null],
+  ["Alpha Drone","Cash",4,null,0,24,1,400,8,11,2,null],
+  ["Andromeda Combat Droid","Gold",500,"Steel",1200,31,1,750,5,8,2,"Andromeda Droid Factory"],
+  ["Andromeda Private","Gold",600,"Steel",800,23,1,160,5,7,1,"Andromeda Private Academy"],
+  ["Andromeda Spaceship","Gold",2200,"Oil",900,34,1,900,6,10,3,"Andromeda Spaceship Hangar"],
+  ["Antiaircraft battery","Gold",600,"Steel",1200,10,1,475,6,12,3,"Antiaircraft garage"],
+  ["APC","Gold",600,"Steel",1200,26,1,425,7,11,3,"Mega Fortress"],
+  ["Arachnid Drone","Cash",4,null,0,26,1,475,8,11,2,null],
+  ["Arachnid Mech","Cash",10,null,0,66,1,2900,7,11,3,null],
+  ["Armored Core Alpha","Cash",10,null,0,46,1,1800,6,3,3,null],
+  ["ATP Mech","Cash",10,null,0,45,1,1800,4,10,3,null],
+  ["Avenger Mech","Cash",10,null,0,70,1,3100,6,10,4,null],
+  ["Avenger Mech Drone","Cash",4,null,0,27,1,500,8,11,2,null],
+  ["Axe Zoldier","Gold",200,"Steel",325,20,1,180,6,1,1,"Axe Zoldier Academy"],
+  ["B52","Gold",300,"Oil",600,22,1,450,15,1,2,null],
+  ["Basic Ork Tank","Gold",175,"Steel",350,18,1,300,6,8,2,null],
+  ["Bazooka","Gold",75,"Steel",150,10,1,50,5,8,1,"Bazooka Academy I"],
+  ["Bazooka II","Gold",150,"Steel",300,14,1,55,5,9,1,"Bazooka Academy II"],
+  ["Bazooka III","Gold",225,"Steel",450,18,1,60,5,10,1,"Bazooka Academy III"],
+  ["Bazooka IV","Gold",600,"Steel",500,22,1,115,5,11,1,"Bazooka Academy IV"],
+  ["Bazooka Soldier","Gold",600,"Steel",600,21,1,100,5,10,1,"Crusader Bazooka Academy"],
+  ["Bazooka V","Gold",675,"Steel",550,26,1,125,5,12,2,"Bazooka Academy V"],
+  ["Bear Ridda","Gold",450,"Wood",300,26,1,450,7,1,2,"Bear Ridda Academy"],
+  ["Big Handsaw Ork","Gold",1000,"Steel",1200,45,1,1250,5,8,3,"Big Handsaw Ork Factory"],
+  ["Big Laser Viking","Gold",650,"Oil",1000,35,1,800,5,9,2,"Laser Viking Academy"],
+  ["Big Razor Mech","Cash",10,null,0,62,1,2700,7,2,3,null],
+  ["Big Razor Mech Drone","Cash",4,null,0,25,1,450,8,11,2,null],
+  ["Big Spider","Gold",1100,"Steel",900,20,1,350,5,1,3,null],
+  ["Black Belt Archer","Cash",10,null,0,45,1,1750,6,10,3,null],
+  ["Black Brutus Mech","Cash",10,null,0,52,1,2100,6,3,3,null],
+  ["Black Draggy","Cash",4,null,0,27,1,450,8,11,2,null],
+  ["Black Dragon","Cash",10,null,0,51,1,1950,5,12,3,null],
+  ["Blazing Beast Rider","Gold",1000,"Wood",12000,40,1,1200,6,7,3,"Blazing Beast Rider Academy"],
+  ["Blue Draggy","Cash",4,null,0,24,1,400,8,11,2,null],
+  ["Blue Dragon","Cash",10,null,0,44,1,1750,5,12,3,null],
+  ["Blue Steel Bahamut","Cash",10,null,0,48,1,1900,5,12,3,null],
+  ["Blue Steel Draggy","Cash",4,null,0,27,1,450,8,11,2,null],
+  ["Brutus Mech","Cash",10,null,0,47,1,1900,5,3,3,null],
+  ["Burning Slayer","Cash",10,null,0,58,1,2500,6,3,3,null],
+  ["Burning Slayer Drone","Cash",4,null,0,25,1,450,8,11,2,null],
+  ["Camu Draggy","Cash",4,null,0,26,1,425,8,11,2,null],
+  ["Camu Metal Dragon","Cash",10,null,0,46,1,1850,5,12,3,null],
+  ["Celestial Megamech","Cash",10,null,0,45,1,1700,5,11,3,null],
+  ["Chainsaw Butcher","Gold",1200,"Oil",1500,35,1,700,5,2,2,"Viking Butcher Academy"],
+  ["Claw Alien","Gold",75,"Steel",150,14,1,200,6,2,1,null],
+  ["Claw Spider","Gold",600,"Oil",400,22,1,200,8,2,1,"Claw Spider Hive"],
+  ["Converter Wizard","Cash",8,null,0,45,1,1500,10,6,3,null],
+  ["Crusader Bot","Gold",3000,"Steel",2500,45,1,1250,5,3,3,"Crusader Bot Factory"],
+  ["Crusader Priest","Gold",500,"Wood",5000,22,1,275,6,8,2,"Crusader Priest Academy"],
+  ["Crusader Soldier","Gold",150,"Steel",300,18,1,90,5,7,1,"Crusader Soldier Academy"],
+  ["Crusader Tank","Gold",450,"Steel",850,35,1,620,5,12,2,"Crusader Tank Academy"],
+  ["Cyber Samurai Drone","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Cyber Samurai Mech","Cash",10,null,0,54,1,2200,6,4,3,null],
+  ["Dark Ether Messiah","Cash",10,null,0,55,1,2250,6,3,3,null],
+  ["Dark Ether Messiah Drone","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Demolition Tank","Gold",500,"Steel",1000,20,1,575,6,12,2,"Demolition Tank Academy"],
+  ["Destruction Wizard","Gold",900,"Wood",3000,36,1,750,5,9,2,"Destruction Wizard Elf Academy"],
+  ["Dino Rider Elf","Gold",1600,"Wood",10000,42,1,1300,6,10,2,"Dino Rider Elf Academy"],
+  ["Doctor Shock","Cash",10,null,0,49,1,1850,6,10,3,null],
+  ["Dominion Tank","Gold",600,"Steel",1200,27,1,475,6,12,2,"Dominion Tank Academy"],
+  ["Double Bazooka","Gold",250,"Wood",500,15,1,400,3,9,2,null],
+  ["Double Bazooka Jeep","Gold",500,"Oil",1000,24,1,275,7,9,2,"Rocket Fortress"],
+  ["Double Cannon Drone","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Double Cannon Mech","Cash",10,null,0,56,1,2300,6,9,3,null],
+  ["Double Gun Soldier","Gold",250,"Steel",500,18,1,110,6,7,1,"Special Fortress, Orc Fortress"],
+  ["Dragonborn Drone","Cash",4,null,0,24,1,425,8,11,2,null],
+  ["Dragonborn Mech","Cash",10,null,0,50,1,1950,6,12,3,null],
+  ["Dreadnought","Gold",1200,"Oil",900,44,1,1200,5,8,3,"Dreadnought Academy"],
+  ["Dual Blade Automech","Cash",10,null,0,51,1,2000,6,2,3,null],
+  ["Dual Blade Automech Drone","Cash",4,null,0,24,1,425,8,11,2,null],
+  ["Electric Draggy","Cash",4,null,0,24,1,475,8,11,2,null],
+  ["Electric Dragon","Cash",10,null,0,52,1,2000,6,12,3,null],
+  ["Elephant rider","Gold",500,"Oil",1000,16,1,90,6,9,2,null],
+  ["Engineer","Gold",350,"Steel",500,10,1,120,5,2,1,"Mechanical Garage"],
+  ["Erradicator","Cash",4,null,0,25,1,550,5,7,2,null],
+  ["Ether Messiah","Cash",10,null,0,48,1,1900,6,3,3,null],
+  ["Ether Messiah Drone","Cash",4,null,0,24,1,450,8,11,2,null],
+  ["Evil Hannibal","Gold",80,"Wood",160,15,1,150,5,7,1,null],
+  ["Executioner Mech","Cash",10,null,0,72,1,3200,6,10,4,null],
+  ["Executioner Mech Drone","Cash",4,null,0,27,1,500,8,11,2,null],
+  ["F-117","Cash",2,null,0,28,1,700,11,11,3,null],
+  ["Fire Godzilla Drone","Cash",4,null,0,29,1,550,8,11,2,null],
+  ["Fire Godzilla Mech","Cash",10,null,0,84,1,3800,6,10,4,null],
+  ["Fire Karateka","Cash",10,null,0,48,1,1800,6,2,3,null],
+  ["Fire T-Rex","Gold",500,"Oil",1000,22,1,3000,7,2,2,null],
+  ["Fireman","Gold",100,null,0,3,1,40,7,3,1,"Fireman Academy"],
+  ["Flamethrowa Ork","Gold",400,"Oil",600,21,1,275,6,7,2,"Flamethrowa Academy"],
+  ["Flamethrower","Gold",300,"Oil",500,19,1,120,5,5,1,"Flamethrower Academy"],
+  ["Forge Dragon","Cash",10,null,0,56,1,2300,7,12,4,null],
+  ["Forge Dragon Draggy","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Gamera Drone","Cash",4,null,0,28,1,550,8,11,2,null],
+  ["Gamera Mech","Cash",10,null,0,78,1,3500,6,10,4,null],
+  ["General Mike","Gold",80,"Wood",160,30,1,250,5,5,1,null],
+  ["General Scarlett","Gold",80,"Wood",160,15,1,250,5,5,1,null],
+  ["Giant Walker","Gold",750,"Steel",650,29,1,700,5,7,3,"Giant Walker Factory"],
+  ["Godzilla Mech","Cash",10,null,0,74,1,3300,6,10,4,null],
+  ["Godzilla Mech Drone","Cash",4,null,0,27,1,525,8,11,2,null],
+  ["Golden Golem","Cash",8,null,0,50,1,1950,6,3,3,null],
+  ["Golden Slayer","Cash",10,null,0,49,1,1900,6,3,3,null],
+  ["Golden Slayer Drone","Cash",4,null,0,24,1,475,8,11,2,null],
+  ["GolemBoss","Gold",175,"Steel",350,20,1,15000,5,2,2,null],
+  ["Great Shogun Mech","Cash",10,null,0,52,1,2050,6,2,3,null],
+  ["Great Shogun Mech Drone","Cash",4,null,0,25,1,450,8,11,2,null],
+  ["Greatsword Warrior","Gold",700,"Wood",3500,34,1,700,6,2,1,"Greatsword Warrior Academy"],
+  ["Gun Zoldier","Gold",170,"Steel",325,19,1,100,6,7,1,"Gun Zoldier Academy"],
+  ["GunBot","Gold",1000,"Steel",500,30,1,1200,5,7,3,"GunBot Academy"],
+  ["Helicopter","Gold",125,"Oil",250,14,1,200,8,7,2,"Helicopter Hangar I"],
+  ["Helicopter II","Gold",250,"Oil",500,18,1,300,8,8,2,"Helicopter Hangar II"],
+  ["Helicopter III","Gold",500,"Oil",1000,22,1,350,8,9,2,"Helicopter Hangar III"],
+  ["Helicopter IV","Gold",750,"Oil",1500,26,1,400,8,10,3,"Helicopter Hangar IV"],
+  ["Helicopter V","Gold",1000,"Oil",2000,30,1,450,8,11,3,"Helicopter Hangar V"],
+  ["Hercules Mech","Gold",10000,"Steel",12000,53,1,1900,5,12,3,"Hercules Mech Academy"],
+  ["Horned Alien","Gold",950,"Oil",800,37,1,800,5,2,1,"Horned Alien Nest"],
+  ["Horned Badass","Gold",1250,"Oil",950,45,1,650,5,8,3,"Horned Badass Factory"],
+  ["Horned Beast Ork","Gold",1250,"Oil",950,22,1,300,6,10,3,null],
+  ["Huge Spider","Gold",900,"Oil",800,36,1,800,6,2,2,"Huge Spider Hive"],
+  ["Hyper Blazer","Cash",10,null,0,47,1,1850,6,8,3,null],
+  ["Hyper Blazer Drone","Cash",4,null,0,24,1,425,8,11,2,null],
+  ["Jet Soldier","Gold",225,"Steel",350,22,1,160,7,8,1,"Jet Soldier Academy"],
+  ["Kamikaze","Gold",1000,"Steel",1000,500,1,100,8,1,1,"Kamikaze Academy"],
+  ["Kamikaze Bros","Gold",1250,"Oil",950,13,1,600,5,11,3,null],
+  ["Kamikaze critter","Gold",1250,"Oil",950,14,1,90,12,1,0,null],
+  ["Kamikaze Pet","Gold",1250,"Oil",950,14,1,90,12,1,0,null],
+  ["Kamikaze team","Gold",1250,"Oil",950,13,1,600,5,11,3,"Kamikaze Bros Academy"],
+  ["Karateka Gunner","Cash",10,null,0,60,1,2600,6,10,3,null],
+  ["Killer Bazooka Jeep","Gold",500,"Oil",1000,15,1,600,7,8,2,null],
+  ["Killer Driller","Cash",10,null,0,48,1,1950,5,3,3,null],
+  ["King Kong Drone","Cash",4,null,0,28,1,550,8,11,2,null],
+  ["King Kong Mech","Cash",10,null,0,76,1,3400,6,3,4,null],
+  ["Knife Throwa","Gold",300,"Oil",500,21,1,200,6,7,1,"Knife Throwa Academy"],
+  ["Laser Blade Automech","Cash",10,null,0,59,1,2600,6,2,3,null],
+  ["Laser Blade Automech Drone","Cash",4,null,0,24,1,425,8,11,2,null],
+  ["Liquid Mech","Cash",10,null,0,53,1,2150,7,3,3,null],
+  ["Liquid Mech Drone","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Machine Gun Jeep","Gold",150,"Oil",300,12,1,150,7,7,2,"Jeep garage I"],
+  ["Machine Gun Jeep II","Gold",225,"Oil",450,16,1,200,7,8,2,"Jeep garage II"],
+  ["Machine Gun Jeep III","Gold",300,"Oil",600,20,1,250,7,9,2,"Jeep garage III"],
+  ["Massive Cannon Drone","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Massive Cannon Mech","Cash",10,null,0,52,1,2100,6,9,3,null],
+  ["Massive Gunner Drone","Cash",4,null,0,28,1,550,8,11,2,null],
+  ["Massive Gunner Mech","Cash",10,null,0,82,1,3700,6,10,4,null],
+  ["Mechanical Golem","Cash",6,null,0,43,1,1650,5,2,3,null],
+  ["Medic","Gold",250,"Wood",500,8,1,110,6,1,1,"Field Hospital"],
+  ["Mega-Axe","Gold",1100,"Steel",825,34,1,600,6,9,3,"Mega-Axe Academy"],
+  ["MegaBot","Cash",6,null,0,40,1,1600,5,7,3,null],
+  ["MegaBot","Gold",5000,"Steel",1400,40,1,1600,5,7,3,"MegaBot Academy"],
+  ["MegaFire T-Rex","Cash",10,null,0,48,1,1950,7,2,2,null],
+  ["Megalancer","Gold",1000,"Steel",800,32,1,575,6,9,3,"Megalancer Academy"],
+  ["MegaTank","Gold",175,"Steel",350,20,1,1000,6,13,2,null],
+  ["Melee Spider","Gold",75,"Steel",150,8,1,110,8,2,1,null],
+  ["Metal Draggy","Cash",4,null,0,25,1,410,8,11,2,null],
+  ["Metal Dragon","Cash",10,null,0,45,1,1800,5,12,3,null],
+  ["Missile Tank","Gold",475,"Steel",875,36,1,630,5,12,2,"Missile Tank Academy"],
+  ["Molotov Kopta","Gold",700,"Oil",1300,28,1,675,10,11,3,"Molotov Kopta Hangar"],
+  ["Mortar Thrower","Gold",80,"Steel",120,15,1,50,4,10,2,"Mortar Academy"],
+  ["Motorized Soldier","Gold",425,"Oil",450,25,1,300,7,9,2,"Motorized Soldier Academy"],
+  ["Mr. Cigar","Gold",80,"Wood",160,20,1,400,5,7,1,null],
+  ["Mr. Treat","Gold",325,"Steel",500,20,1,200,5,9,2,"Mr T. Academy"],
+  ["Multi Morpher","Cash",10,null,0,54,1,2200,6,10,3,null],
+  ["Nebular Archer","Gold",500,"Wood",1600,20,1,120,5,7,1,"Nebular Archer Academy"],
+  ["Nebular Assault Quad","Gold",600,"Steel",900,38,1,700,7,12,2,"Nebular Assault Quad Academy"],
+  ["Nebular Bicopter","Gold",900,"Oil",1500,31,1,750,8,10,2,"Nebular Bicopter Hangar"],
+  ["Nebular Dragon Knight","Gold",1200,"Wood",13000,32,1,800,10,10,2,"Nebular Dragon Knight Academy"],
+  ["Nebular Dragon Knight Draggy","Cash",4,null,0,18,1,250,8,10,2,null],
+  ["Nebular Dragon Rider","Gold",1000,"Wood",12000,30,1,725,10,10,2,"Nebular Dragon Rider Academy"],
+  ["Nebular Dragon Rider Draggy","Cash",4,null,0,16,1,200,8,10,2,null],
+  ["Nebular Knight","Gold",600,"Wood",2000,23,1,280,7,7,2,"Nebular Knight Academy"],
+  ["Nebular Maze Warrior","Gold",900,"Wood",3800,35,1,750,6,2,2,"Nebular Maze Warrior Academy"],
+  ["Nebular Priest","Gold",800,"Wood",3600,32,1,800,5,8,2,"Nebular Priest Academy"],
+  ["Nebular Rider","Gold",450,"Wood",10000,36,1,650,9,2,2,"Nebular Rider Academy"],
+  ["Nebular Sniper","Gold",1500,"Steel",1500,80,1,500,5,15,3,"Nebular Sniper Academy"],
+  ["Nebular Spearman","Gold",500,"Wood",1500,22,1,210,6,2,1,"Nebular Spearman Academy"],
+  ["Nemesis Core","Cash",10,null,0,46,1,1800,6,8,3,null],
+  ["Nemesis Drone","Cash",4,null,0,24,1,400,8,11,2,null],
+  ["Orc Big Tank","Gold",500,"Steel",900,16,1,350,6,10,2,null],
+  ["Orc Knifethrower","Gold",300,"Oil",500,12,1,100,5,6,1,null],
+  ["Orc Swordsman","Gold",75,"Steel",150,8,1,90,5,2,1,null],
+  ["Orc Tank","Gold",500,"Steel",900,37,1,650,5,12,2,"Ork Tank Academy"],
+  ["Orc Worker","Gold",10,null,0,6,1,25,5,1,1,null],
+  ["Orc Zoldier","Gold",75,"Steel",150,8,1,40,5,5,1,null],
+  ["Ork Bear Knight","Gold",450,"Wood",300,12,1,150,7,1,2,null],
+  ["Ork Kopta","Gold",700,"Oil",1300,14,1,250,8,7,2,null],
+  ["Pharaoh Mech Drone","Cash",4,null,0,25,1,450,8,11,2,null],
+  ["Pharaoh Warrior Mech","Cash",10,null,0,65,1,2850,6,3,3,null],
+  ["Poison Spider","Gold",500,"Oil",300,21,1,150,8,6,1,"Poison Spider Hive"],
+  ["Prime Automech","Cash",10,null,0,57,1,2400,6,10,3,null],
+  ["Prime Automech Drone","Cash",4,null,0,25,1,450,8,11,2,null],
+  ["Proto Winged Drone","Cash",4,null,0,26,1,475,8,11,2,null],
+  ["Proto Winged Mech","Cash",10,null,0,65,1,2900,6,10,4,null],
+  ["Punisher Bot","Gold",5100,"Oil",1400,41,1,1600,5,7,3,"Punisher Bot Factory"],
+  ["Ranbo","Cash",4,null,0,23,1,500,6,8,2,null],
+  ["Red Baron","Cash",6,null,0,29,1,675,10,11,3,null],
+  ["Red chopper","Gold",1000,"Oil",2000,25,1,400,7,8,2,null],
+  ["Red Draggy","Cash",4,null,0,22,1,390,8,11,2,null],
+  ["Red Dragon","Cash",10,null,0,42,1,1700,5,12,3,null],
+  ["Red Flamethrowa Ork","Gold",400,"Oil",600,12,1,125,6,7,2,null],
+  ["Red Handsaw Ork","Gold",1000,"Steel",1200,22,1,350,6,12,3,null],
+  ["Red Mercury Draggy","Cash",4,null,0,26,1,450,8,11,2,null],
+  ["Red Mercury Dragon","Cash",10,null,0,54,1,2200,7,12,4,null],
+  ["Red Spinner","Cash",10,null,0,43,1,1650,6,8,3,null],
+  ["Red Tank","Gold",300,"Oil",600,18,1,150,6,8,2,null],
+  ["Reptile Gun","Gold",6000,"Steel",8000,42,1,1200,7,12,4,"Reptile Gun Academy"],
+  ["Robot Hunter","Gold",800,"Steel",800,42,1,1400,5,10,3,null],
+  ["Roller Skater","Cash",10,null,0,45,1,1750,8,8,3,null],
+  ["Rune Golem Drone","Cash",4,null,0,24,1,425,8,11,2,null],
+  ["S.W.A.T. Soldier (Cash)","Cash",10,null,0,46,1,1850,8,10,3,null],
+  ["S.W.A.T. Soldier","Gold",8000,"Steel",10000,46,1,1850,8,10,3,"S.W.A.T. Soldier Academy"],
+  ["Samurai Bot","Cash",10,null,0,43,1,1650,6,3,3,null],
+  ["Samurai Bot Mk.II","Cash",10,null,0,44,1,1700,6,3,3,null],
+  ["Samurai Minibot","Cash",10,null,0,20,1,180,7,2,3,null],
+  ["Scarface girl","Gold",80,"Wood",160,20,1,400,5,7,1,null],
+  ["Sergeant Jack","Gold",80,"Wood",160,13,1,200,5,7,1,null],
+  ["Sergeant Megan","Gold",80,"Wood",160,13,1,200,5,7,1,null],
+  ["Ship","Gold",250,"Oil",500,14,1,500,5,7,2,null],
+  ["Shredder Alien","Gold",700,"Oil",600,35,1,750,6,2,1,"Shredder Alien Nest"],
+  ["Siege Striker","Gold",10000,"Oil",10000,400,1,1500,4,15,4,"Elf Siege Striker Academy"],
+  ["Silver Gunner Elf","Gold",800,"Oil",400,32,1,800,5,10,2,"Silver Gunner Elf Academy"],
+  ["Silver Hercules","Cash",10,null,0,53,1,1900,5,12,3,null],
+  ["Skylander","Gold",700,"Oil",1300,28,1,675,9,10,2,"Crusader Skylander Hangar"],
+  ["Small Alien","Gold",170,"Steel",325,8,1,110,8,5,1,null],
+  ["Soldier","Gold",30,"Steel",60,8,1,50,5,5,1,"Academy I"],
+  ["Soldier II","Gold",60,"Steel",120,12,1,55,5,6,1,"Academy II"],
+  ["Soldier III","Gold",90,"Steel",180,16,1,60,5,7,1,"Academy III"],
+  ["Soldier IV","Gold",120,"Steel",240,20,1,100,5,8,1,"Academy IV"],
+  ["Soldier V","Gold",150,"Steel",300,24,1,110,5,9,2,"Academy V"],
+  ["Space Airship Elf","Gold",2200,"Oil",900,32,1,750,10,10,3,"Elf Airship Hangar"],
+  ["Space Archer Elf","Gold",600,"Wood",1800,22,1,140,5,7,1,"Space Archer Elf Academy"],
+  ["Space Elf Cruiser","Gold",2500,"Oil",1000,35,1,1000,8,10,3,"Elven Cruiser Hangar"],
+  ["Space Healer Elf","Gold",1000,"Wood",5000,25,1,650,5,7,2,"Space Healer Elf Academy"],
+  ["Space Knight Elf","Gold",1500,"Steel",800,30,1,700,8,8,2,"Space Knight Elf Academy"],
+  ["Space Paladin Elf","Gold",750,"Steel",900,36,1,800,6,2,1,"Paladin Elf Academy"],
+  ["Space Priest Elf","Gold",800,"Steel",1000,34,1,900,5,9,2,"Priest Elf Academy"],
+  ["Space Scouter Elf","Gold",2000,"Steel",900,38,1,750,8,10,2,"Space Elf Scouter Hangar"],
+  ["Space Sword Elf","Gold",600,"Wood",1800,23,1,230,6,2,1,"Space Sword Elf Academy"],
+  ["Spartan Warrior Drone","Cash",4,null,0,25,1,450,8,11,2,null],
+  ["Spartan Warrior Mech","Cash",10,null,0,64,1,2800,6,3,4,null],
+  ["Special Ops.","Gold",60,"Steel",120,10,1,120,5,8,1,"Spy Academy"],
+  ["Special Spy","Gold",50,"Wood",100,10,1,50,3,5,1,null],
+  ["Spider Bot","Cash",10,null,0,50,1,2000,7,10,3,null],
+  ["Stealth Fighter","Gold",600,"Oil",1200,26,1,650,10,11,2,"Stealth Fighter Hangar"],
+  ["Steel Claws","Gold",600,"Steel",600,20,1,190,6,1,1,"Steel Claws Academy, Development Wall"],
+  ["Steel Collector","Cash",6,null,0,30,1,1500,8,8,2,null],
+  ["Supreme Bot","Gold",1000,"Steel",1200,42,1,1625,7,2,3,null],
+  ["Swamp Minion","Cash",4,null,0,18,1,250,6,1,1,null],
+  ["Swamp Monster","Gold",1200,"Wood",14000,50,1,2000,5,2,3,"Swamp Monster Academy"],
+  ["Swamp Monster (Wild)","Gold",1200,"Wood",14000,50,1,2000,5,2,3,null],
+  ["Swordsman Soldier","Gold",170,"Steel",300,19,1,170,6,1,1,"Crusader Swordsman Academy"],
+  ["T-Rex","Gold",500,"Oil",1000,40,1,1200,7,2,2,null],
+  ["T-Rex Green","Gold",500,"Oil",1000,22,1,3000,7,2,2,null],
+  ["Tank","Gold",175,"Steel",350,18,1,300,6,8,2,"Tank Academy I"],
+  ["Tank II","Gold",250,"Steel",500,22,1,375,6,10,2,"Tank Academy II"],
+  ["Tank III","Gold",325,"Steel",650,26,1,450,6,12,2,"Tank Academy III"],
+  ["Tank IV","Gold",400,"Steel",800,30,1,525,6,12,2,"Tank Academy IV"],
+  ["Tank V","Gold",475,"Steel",950,34,1,600,6,13,3,"Tank Academy V"],
+  ["TankBoss","Gold",175,"Steel",350,20,1,15000,5,2,2,null],
+  ["Truck","Gold",100,"Steel",200,5,1,200,6,5,3,null],
+  ["Truck 3","Gold",300,"Steel",600,5,1,250,6,5,3,null],
+  ["Truck II","Gold",300,"Steel",600,5,1,250,6,5,3,null],
+  ["Tusk Alien","Gold",75,"Steel",150,20,1,350,5,1,1,null],
+  ["UFO","Gold",800,"Steel",800,38,1,900,10,8,2,null],
+  ["Ultra-Mech","Cash",10,null,0,46,1,1800,6,8,3,null],
+  ["Ultra-Mech Drone","Cash",4,null,0,24,1,400,8,11,2,null],
+  ["UN Allied","Gold",80,"Wood",160,12,1,100,6,8,1,null],
+  ["Venom Spider","Gold",170,"Steel",325,14,1,200,6,5,1,null],
+  ["Viking Airship","Gold",800,"Oil",1400,29,1,700,10,10,3,"Viking Airship Hangar"],
+  ["Viking Airship Outsider","Gold",800,"Oil",1400,15,1,275,8,9,3,null],
+  ["Viking Axeman","Gold",200,"Steel",325,21,1,200,6,1,1,"Viking Axe Academy"],
+  ["Viking Bazooka","Gold",800,"Steel",800,22,1,150,5,10,1,"Viking Bazooka Academy"],
+  ["Viking Bear Knight","Gold",450,"Wood",1000,27,1,550,7,2,2,"Bear Knight Academy"],
+  ["Viking Core Bot","Gold",3100,"Steel",2550,46,1,1275,5,3,3,"Viking Core Factory"],
+  ["Viking Core Bot Drone","Cash",4,null,0,24,1,400,8,11,2,null],
+  ["Viking Hammerer","Gold",1100,"Steel",900,33,1,650,6,2,3,"Viking Hammerer Factory"],
+  ["Viking Hammerer Outsider","Gold",1100,"Steel",900,22,1,350,6,2,3,null],
+  ["Viking MotoSquad","Gold",550,"Oil",800,38,1,600,7,12,3,"Viking MotoSquad Academy"],
+  ["Viking Sniper","Gold",650,"Steel",1000,75,1,500,5,15,2,"Viking Sniper Academy"],
+  ["Viking Soldier","Gold",200,"Oil",325,19,1,100,5,7,1,"Viking Soldier Academy"],
+  ["Viking Tank","Gold",500,"Steel",900,37,1,650,5,12,3,"Viking Tank Academy"],
+  ["War Buggy","Cash",6,null,0,30,1,750,9,9,2,null],
+  ["Watcher Hero","Gold",800,"Oil",400,56,1,2300,7,10,3,null],
+  ["Winged Paladin","Gold",900,"Steel",3000,39,1,850,6,10,1,"Winged Paladin Academy"],
+  ["Worker I","Gold",10,null,0,6,1,25,5,1,1,"Command Center"],
+  ["Worker II","Gold",10,null,0,6,1,30,5,1,1,"Command Center II"],
+  ["Worker III","Gold",10,null,0,6,1,35,6,1,1,"Command Center III"],
+  ["Worker IV","Gold",10,null,0,6,1,40,7,1,1,"Command Center IV"],
+  ["Xplosive Beast","Gold",1100,"Steel",900,18,1,300,5,9,3,null],
+  ["Xplosive Beast ATP","Gold",500,"Oil",1000,24,1,275,7,9,2,null],
+  ["Xplosive Beast Boss","Gold",1100,"Steel",900,20,1,400,3,9,3,null],
+  ["Xplosive Ork","Gold",1100,"Steel",900,34,1,650,6,9,3,"Xplosive Ork Academy"],
+  ["Xtreme Retaliator","Gold",650,"Oil",1250,27,1,650,10,11,2,"Retaliator Academy"],
+  ["Z Project Drone","Cash",4,null,0,28,1,550,8,11,2,null],
+  ["Z Project Mech","Cash",10,null,0,80,1,3600,6,10,4,null],
+  ["Zeppelin","Cash",6,null,0,28,1,700,11,11,3,null],
+  ["Zodiac","Gold",300,"Oil",600,7,1,300,6,6,2,null]
+];
+
+const BUILDINGS_DB = RAW_BUILDINGS.map(r => {
+  const [name, section, sub, costType, costVal, level, size, life, attack, range, population, trains] = r;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+  let produces = null;
+  if (sub === "Factories") {
+    const tier = name.includes("IV") ? 4 : name.includes("III") ? 3 : name.includes("II") ? 2 : 1;
+    const res = name.startsWith("Wood") ? "wood" : name.startsWith("Gold") ? "gold" : name.startsWith("Steel") ? "steel" : "oil";
+    produces = { type: res, rate: 14 * tier * tier, cap: 180 * tier * tier };
+  } else if (["Corn field","Grape field","Cow farm","Viking Field"].includes(name)) {
+    produces = { type: "gold", rate: 16 + level * 2, cap: 200 + level * 25 };
+  } else if (name.startsWith("Market") || name === "Allies Market" || name === "Auction House") {
+    produces = { type: "gold", rate: 30 + level * 3, cap: 350 + level * 40 };
+  }
+  return { id, name, section, sub, costType, costVal, level, size, life, attack, range, population, trains, produces, isSilo: sub === "Silos" };
+});
+
+const BUILDING_NAME_SET = new Set(BUILDINGS_DB.map(b => b.name.toLowerCase()));
+
+const UNITS_DB = RAW_UNITS.map((r, idx) => {
+  const [name, c1Type, c1Val, c2Type, c2Val, attack, defense, life, speed, range, population, trainedIn] = r;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "_") + "_" + idx;
+  const cost = { gold: 0, wood: 0, steel: 0, oil: 0, cash: 0 };
+  if (c1Type) cost[c1Type.toLowerCase()] += c1Val;
+  if (c2Type) cost[c2Type.toLowerCase()] += c2Val;
+
+  const isCash = c1Type === "Cash";
+  const isHealer = /Medic|Priest|Healer/i.test(name);
+  const isWorker = /Worker|Engineer/i.test(name);
+  const isKamikaze = /^Kamikaze$/i.test(name);
+  const isAir = /Helicopter|Aircraft|Airship|Bicopter|Dragon|Draggy|Bahamut|Stealth|F-117|Zeppelin|UFO|B52|Baron|Skylander|Spaceship|Cruiser|Kopta|Air Strike/i.test(name);
+  const isTitan = /Mech|Golem|Godzilla|King Kong|Gamera|Boss|T-Rex|Dragon|Bahamut|Dreadnought|Walker|Slayer|Messiah|Automech/i.test(name);
+
+  let color = "#38bdf8";
+  if (isCash) color = "#4ade80";
+  if (isAir) color = "#22d3ee";
+  if (isTitan) color = "#facc15";
+  if (isHealer) color = "#86efac";
+  if (isWorker) color = "#cbd5e1";
+  if (isKamikaze) color = "#fb7185";
+
+  const trainerNames = trainedIn ? trainedIn.split(",").map(s => s.trim()) : [];
+  const hasBaseBuilding = trainerNames.some(tn => BUILDING_NAME_SET.has(tn.toLowerCase()));
+
+  return {
+    id, name, cost, c1Type, c1Val, c2Type, c2Val,
+    attack, defense, life, speed, range, population,
+    trainedIn, trainerNames, hasBaseBuilding,
+    isCash, isHealer, isWorker, isKamikaze, isAir, isTitan, color
+  };
+});
+
+/* ============================================================================
+ * 3. OYUN DURUMU VE HEDEFLER
+ * ==========================================================================*/
+const COLS = 34, ROWS = 22, TILE = 24;
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let state;
+let mainTab = "build";
+let catTab = "All";
+let unitFilter = "ready";
+let codexCat = "Units";
+let buildSelectedId = null;
+let selectedBuildingUid = null;
+let hoverTile = null;
+let uidCounter = 1;
+
+const OBJECTIVES = [
+  { text: "1/5: Gold Factory I veya House I inşa et", reward: { gold: 200, wood: 100, xp: 40 }, check: s => s.buildings.some(b => b.defId === "gold_factory_i") || s.buildings.filter(b => b.defId === "house_i").length >= 2 },
+  { text: "2/5: Depolardan kaynak topla (Tümünü Topla veya binaya tıkla)", reward: { gold: 150, steel: 120, xp: 40 }, check: s => s.collectedCount >= 1 },
+  { text: "3/5: Orduna yeni bir birim eğit (Birim Eğit sekmesi)", reward: { wood: 150, steel: 150, xp: 50 }, check: s => s.trainedCount >= 1 },
+  { text: "4/5: Bir Savunma binası kur (Turret I, Bunker I veya Wall I)", reward: { gold: 250, cash: 3, xp: 60 }, check: s => s.buildings.some(b => BUILDINGS_DB.find(d => d.id === b.defId).section === "Defense") },
+  { text: "5/5: Dalga 1 saldırısını püskürt (Görev Başlat)", reward: { gold: 400, steel: 250, cash: 5, xp: 100 }, check: s => s.wave >= 2 }
+];
+
+function createBuilding(defId, gx, gy) {
+  const def = BUILDINGS_DB.find(b => b.id === defId);
+  return { uid: uidCounter++, defId, gx, gy, size: def.size, hp: def.life, maxHp: def.life, stored: 0, cooldown: 0 };
+}
+
+function createUnit(unitObj, x, y) {
+  return { uid: uidCounter++, defId: unitObj.id, x, y, hp: unitObj.life, maxHp: unitObj.life, cooldown: 0 };
+}
+
+function initialState() {
+  uidCounter = 1;
+  const s = {
+    level: 1, xp: 0, xpMax: 100, wave: 1, inMission: false,
+    collectedCount: 0, trainedCount: 0, questIdx: 0,
+    resources: { gold: 800, wood: 600, steel: 400, oil: 200, cash: 25 },
+    buildings: [
+      createBuilding("command_center", 2, 8),
+      createBuilding("house_i", 2, 5),
+      createBuilding("wood_factory_i", 5, 5),
+      createBuilding("academy_i", 2, 13)
+    ],
+    units: [],
+    enemies: [],
+    projectiles: [],
+    floaters: []
+  };
+  const soldierDef = UNITS_DB.find(u => u.name === "Soldier");
+  const workerDef = UNITS_DB.find(u => u.name === "Worker I");
+  s.units.push(createUnit(soldierDef, 7 * TILE, 13 * TILE));
+  s.units.push(createUnit(soldierDef, 7 * TILE, 14.5 * TILE));
+  s.units.push(createUnit(workerDef, 6.5 * TILE, 10 * TILE));
+  return s;
+}
+
+/* ============================================================================
+ * 4. EKONOMİ, GÖREV VE YARDIMCILAR
+ * ==========================================================================*/
+function getSiloMultiplier() {
+  let bonus = 1;
+  for (const b of state.buildings) {
+    if (b.defId === "silo") bonus += 0.25;
+    if (b.defId === "silo_ii") bonus += 0.40;
+    if (b.defId === "silo_iii") bonus += 0.65;
+  }
+  return bonus;
+}
+
+function getPopStats() {
+  let cap = 0;
+  for (const b of state.buildings) {
+    const def = BUILDINGS_DB.find(d => d.id === b.defId);
+    if (def.population > 0 && !def.isSilo) cap += def.population;
+  }
+  let used = 0;
+  for (const u of state.units) {
+    const def = UNITS_DB.find(d => d.id === u.defId);
+    if (def) used += def.population;
+  }
+  return { used, cap };
+}
+
+function canAffordBuilding(def) { return (state.resources[def.costType.toLowerCase()] || 0) >= def.costVal; }
+function spendBuilding(def) { state.resources[def.costType.toLowerCase()] -= def.costVal; }
+
+function canAffordCost(cost) {
+  return state.resources.gold >= cost.gold && state.resources.wood >= cost.wood &&
+         state.resources.steel >= cost.steel && state.resources.oil >= cost.oil && state.resources.cash >= cost.cash;
+}
+function spendCost(cost) {
+  state.resources.gold -= cost.gold; state.resources.wood -= cost.wood;
+  state.resources.steel -= cost.steel; state.resources.oil -= cost.oil; state.resources.cash -= cost.cash;
+}
+
+function formatUnitCost(u) {
+  const p = [];
+  if (u.c1Type) p.push(`${u.c1Val.toLocaleString()} ${u.c1Type}`);
+  if (u.c2Type) p.push(`${u.c2Val.toLocaleString()} ${u.c2Type}`);
+  return p.join(" + ");
+}
+
+function gainXP(amount) {
+  state.xp += amount;
+  while (state.xp >= state.xpMax) {
+    state.xp -= state.xpMax;
+    state.level++;
+    state.xpMax = Math.round(state.xpMax * 1.32);
+    state.resources.cash += 3;
+    addLog(`Seviye ${state.level} oldun (+3 Cash)! Yeni yapılar açıldı.`, "good");
+  }
+}
+
+function checkObjectives() {
+  while (state.questIdx < OBJECTIVES.length) {
+    const obj = OBJECTIVES[state.questIdx];
+    if (!obj.check(state)) break;
+    const rw = obj.reward;
+    if (rw.gold) state.resources.gold += rw.gold;
+    if (rw.wood) state.resources.wood += rw.wood;
+    if (rw.steel) state.resources.steel += rw.steel;
+    if (rw.cash) state.resources.cash += rw.cash;
+    if (rw.xp) gainXP(rw.xp);
+    addLog(`Hedef Tamamlandı (${obj.text})!`, "good");
+    state.questIdx++;
+  }
+  const qt = document.getElementById("quest-text");
+  const qr = document.getElementById("quest-reward");
+  if (state.questIdx >= OBJECTIVES.length) {
+    qt.textContent = "Tüm başlangıç hedefleri tamamlandı! Üssünü büyütmeye devam et.";
+    qr.textContent = "Tamamlandı";
+  } else {
+    const cur = OBJECTIVES[state.questIdx];
+    qt.textContent = cur.text;
+    const r = Object.entries(cur.reward).map(([k, v]) => `+${v} ${k.toUpperCase()}`).join(", ");
+    qr.textContent = `Ödül: ${r}`;
+  }
+}
+
+function sandboxBoost() {
+  state.level += 5;
+  state.resources.gold += 30000;
+  state.resources.wood += 20000;
+  state.resources.steel += 15000;
+  state.resources.oil += 15000;
+  state.resources.cash += 120;
+  addLog("Sandbox takviyesi (+5 Sv, +Kaynak, +120 Cash).", "info");
+  renderHUD();
+  renderLeftPanel();
+}
+
+function isAreaFree(gx, gy, size) {
+  if (gx < 0 || gy < 0 || gx + size > COLS || gy + size > ROWS) return false;
+  for (const b of state.buildings) {
+    if (gx < b.gx + b.size && gx + size > b.gx && gy < b.gy + b.size && gy + size > b.gy) return false;
+  }
+  return true;
+}
+
+function addLog(msg, cls = "") {
+  const box = document.getElementById("log-box");
+  const div = document.createElement("div");
+  div.className = "log-entry " + cls;
+  div.textContent = `[Dalga ${state.wave}] ${msg}`;
+  box.prepend(div);
+  while (box.children.length > 45) box.lastChild.remove();
+}
+
+/* ============================================================================
+ * 5. ARAYÜZ ÇİZİMİ
+ * ==========================================================================*/
+function setMainTab(t) {
+  mainTab = t;
+  document.getElementById("tab-main-build").classList.toggle("active", t === "build");
+  document.getElementById("tab-main-train").classList.toggle("active", t === "train");
+  document.getElementById("cat-tabs").style.display = t === "build" ? "flex" : "none";
+  document.getElementById("unit-tabs").style.display = t === "train" ? "flex" : "none";
+  renderLeftPanel();
+}
+
+function setCatTab(c) {
+  catTab = c;
+  document.querySelectorAll("#cat-tabs button").forEach(b => {
+    const lbl = c === "Limited Edition" ? "Limited" : c === "Decorations" ? "Decor" : c === "All" ? "Tümü" : c;
+    b.classList.toggle("active", b.textContent === lbl);
+  });
+  renderLeftPanel();
+}
+
+function setUnitFilter(f) {
+  unitFilter = f;
+  const map = { ready: "Hazır", cash: "Cash", special: "Özel", all: "Tümü" };
+  document.querySelectorAll("#unit-tabs button").forEach(b => b.classList.toggle("active", b.textContent.startsWith(map[f])));
+  renderLeftPanel();
+}
+
+function renderHUD() {
+  document.getElementById("ui-level").textContent = state.level;
+  document.getElementById("ui-xp-text").textContent = `XP ${state.xp} / ${state.xpMax}`;
+  document.getElementById("ui-xp-bar").style.width = `${Math.min(100, (state.xp / state.xpMax) * 100)}%`;
+  document.getElementById("res-gold").textContent = Math.floor(state.resources.gold).toLocaleString("tr-TR");
+  document.getElementById("res-wood").textContent = Math.floor(state.resources.wood).toLocaleString("tr-TR");
+  document.getElementById("res-steel").textContent = Math.floor(state.resources.steel).toLocaleString("tr-TR");
+  document.getElementById("res-oil").textContent = Math.floor(state.resources.oil).toLocaleString("tr-TR");
+  document.getElementById("res-cash").textContent = Math.floor(state.resources.cash).toLocaleString("tr-TR");
+
+  const pop = getPopStats();
+  document.getElementById("res-pop").textContent = `${pop.used} / ${pop.cap}`;
+
+  const missionBtn = document.getElementById("btn-mission");
+  missionBtn.disabled = state.inMission;
+  missionBtn.textContent = state.inMission ? `Savaş Sürüyor (Dalga ${state.wave})` : `Görev Başlat (Dalga ${state.wave})`;
+
+  checkObjectives();
+  renderArmySummary();
+}
+
+function getBuiltBuildingNamesSet() {
+  const s = new Set();
+  for (const b of state.buildings) {
+    const def = BUILDINGS_DB.find(d => d.id === b.defId);
+    if (def) s.add(def.name.toLowerCase());
+  }
+  return s;
+}
+
+function renderLeftPanel() {
+  const q = document.getElementById("left-search").value.trim().toLowerCase();
+  const list = document.getElementById("left-list");
+  list.innerHTML = "";
+
+  if (mainTab === "build") {
+    const filtered = BUILDINGS_DB.filter(b => {
+      if (b.id === "command_center" && state.buildings.some(x => x.defId === "command_center")) return false;
+      if (catTab !== "All" && b.section !== catTab) return false;
+      if (!q) return true;
+      return b.name.toLowerCase().includes(q) || (b.trains && b.trains.toLowerCase().includes(q)) || b.sub.toLowerCase().includes(q);
+    }).sort((a, b) => a.level - b.level);
+
+    for (const def of filtered) {
+      const unlocked = state.level >= def.level;
+      const affordable = canAffordBuilding(def);
+      const card = document.createElement("div");
+      card.className = "item-card" + (buildSelectedId === def.id ? " selected" : "");
+      const extras = [];
+      if (def.attack > 0) extras.push(`Atk: ${def.attack} | Rng: ${def.range}`);
+      if (def.population > 0) extras.push(def.isSilo ? `Depo +% (Codex Pop: ${def.population.toLocaleString()})` : `Pop: +${def.population}`);
+      if (def.trains) extras.push(`Eğitir: ${def.trains}`);
+
+      card.innerHTML = `
+        <div class="item-head">
+          <strong>${def.name}</strong>
+          <span class="badge">Sv.${def.level} · ${def.size}x${def.size}</span>
+        </div>
+        <div class="costs">Maliyet: <b>${def.costVal.toLocaleString()} ${def.costType}</b> · Can: <b>${def.life.toLocaleString()}</b></div>
+        ${extras.length ? `<div class="stats-mini">${extras.join(" · ")}</div>` : ""}
+        <button ${!unlocked || !affordable || state.inMission ? "disabled" : ""} onclick="selectToBuild('${def.id}')">
+          ${!unlocked ? `Seviye ${def.level} Gerekli` : (buildSelectedId === def.id ? "Haritada Yer Seç..." : "İnşa Et")}
+        </button>
+      `;
+      list.appendChild(card);
+    }
+  } else {
+    const pop = getPopStats();
+    const builtNames = getBuiltBuildingNamesSet();
+
+    const filtered = UNITS_DB.filter(u => {
+      const isReadyOnBase = u.hasBaseBuilding && u.trainerNames.some(tn => builtNames.has(tn.toLowerCase()));
+      if (unitFilter === "ready" && !isReadyOnBase) return false;
+      if (unitFilter === "cash" && !u.isCash) return false;
+      if (unitFilter === "special" && (u.isCash || u.hasBaseBuilding)) return false;
+      if (!q) return true;
+      return u.name.toLowerCase().includes(q) || (u.trainedIn && u.trainedIn.toLowerCase().includes(q));
+    });
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="stats-mini" style="padding:8px;">Eşleşen birim bulunamadı. Diğer sekmeleri (<i>Cash / Ejder & Mech</i> veya <i>Tümü</i>) deneyebilirsin.</div>`;
+      return;
+    }
+
+    for (const u of filtered.slice(0, 120)) {
+      const needsBaseBldg = u.hasBaseBuilding;
+      const hasTrainer = !needsBaseBldg || u.trainerNames.some(tn => builtNames.has(tn.toLowerCase()));
+      const hasPop = pop.used + u.population <= pop.cap;
+      const affordable = canAffordCost(u.cost);
+
+      let btn = u.isCash ? "Kirala (Cash)" : "Eğit";
+      if (!hasTrainer) btn = `${u.trainedIn} Gerekli`;
+      else if (!hasPop) btn = `Nüfus Dolu (+${u.population})`;
+
+      const card = document.createElement("div");
+      card.className = "item-card";
+      card.innerHTML = `
+        <div class="item-head">
+          <strong>${u.name}</strong>
+          <span class="badge">Pop: ${u.population} · ${u.isCash ? "Cash" : (u.trainedIn || "Özel")}</span>
+        </div>
+        <div class="costs">Maliyet: <b>${formatUnitCost(u)}</b></div>
+        <div class="stats-mini">Can: <b>${u.life.toLocaleString()}</b> | Sld: <b>${u.attack}</b> | Hız: ${u.speed} | Mnz: ${u.range}</div>
+        <button ${!hasTrainer || !hasPop || !affordable ? "disabled" : ""} onclick="trainUnit('${u.id}')">${btn}</button>
+      `;
+      list.appendChild(card);
+    }
+    if (filtered.length > 120) {
+      const note = document.createElement("div");
+      note.className = "stats-mini";
+      note.style.textAlign = "center";
+      note.textContent = `İlk 120 sonuç gösteriliyor (toplam ${filtered.length}). Arama kutusuyla daraltabilirsin.`;
+      list.appendChild(note);
+    }
+  }
+}
+
+function renderArmySummary() {
+  const counts = {};
+  for (const u of state.units) {
+    const def = UNITS_DB.find(x => x.id === u.defId);
+    const key = def ? def.name : u.defId;
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  document.getElementById("army-count").textContent = `${state.units.length} Birim`;
+  const box = document.getElementById("army-summary");
+  if (!state.units.length) {
+    box.textContent = "Henüz birimin yok.";
+    return;
+  }
+  box.innerHTML = Object.entries(counts).map(([name, c]) => `<div>• <b>${name}</b>: ${c}</div>`).join("");
+}
+
+function renderInspector() {
+  const box = document.getElementById("inspector");
+  const b = state.buildings.find(x => x.uid === selectedBuildingUid);
+  if (!b) {
+    box.innerHTML = `<strong>Seçili Yapı Yok</strong><span style="color:var(--muted)">Haritadan bir binaya tıkla; özelliklerini gör veya kaynağını topla.</span>`;
+    return;
+  }
+  const def = BUILDINGS_DB.find(d => d.id === b.defId);
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <strong>${def.name}</strong>
+      <span class="badge">${def.section} · ${def.size}x${def.size}</span>
+    </div>
+    <div>Can: <b>${Math.ceil(b.hp).toLocaleString()} / ${b.maxHp.toLocaleString()}</b></div>
+    ${def.attack ? `<div>Saldırı: <b>${def.attack}</b> · Menzil: <b>${def.range} kare</b></div>` : ""}
+    ${def.trains ? `<div>Eğitir: <b>${def.trains}</b></div>` : ""}
+    ${def.produces ? `<div>Depo (${def.produces.type}): <b>${Math.floor(b.stored)} / ${Math.round(def.produces.cap * getSiloMultiplier())}</b></div>` : ""}
+    <div style="display:flex; gap:6px; margin-top:4px;">
+      ${b.stored >= 1 ? `<button class="success" style="flex:1" onclick="collectBuilding(${b.uid})">Topla (${Math.floor(b.stored)})</button>` : ""}
+      ${b.defId !== "command_center" && !state.inMission ? `<button class="danger" onclick="demolishSelected()">Kaldır</button>` : ""}
+    </div>
+  `;
+}
+
+/* ============================================================================
+ * 6. İNŞA, EĞİTİM, TOPLAMA VE SAVAŞ
+ * ==========================================================================*/
+function selectToBuild(defId) {
+  buildSelectedId = defId;
+  const def = BUILDINGS_DB.find(b => b.id === defId);
+  document.getElementById("btn-cancel-build").style.display = "inline-block";
+  document.getElementById("mode-pill").textContent = `Mod: İnşa — ${def.name} (${def.size}x${def.size})`;
+  renderLeftPanel();
+}
+
+function cancelBuildMode() {
+  buildSelectedId = null;
+  document.getElementById("btn-cancel-build").style.display = "none";
+  document.getElementById("mode-pill").textContent = "Mod: Seçim / Toplama (34×22 Izgara)";
+  renderLeftPanel();
+}
+
+function trainUnit(unitId) {
+  const def = UNITS_DB.find(u => u.id === unitId);
+  if (!def) return;
+  const pop = getPopStats();
+  if (!canAffordCost(def.cost) || pop.used + def.population > pop.cap) return;
+
+  let spawnB = null;
+  if (def.trainerNames.length) {
+    spawnB = state.buildings.find(b => {
+      const bd = BUILDINGS_DB.find(d => d.id === b.defId);
+      return bd && def.trainerNames.some(tn => tn.toLowerCase() === bd.name.toLowerCase());
+    });
+  }
+  if (!spawnB) spawnB = state.buildings.find(b => b.defId === "command_center") || state.buildings[0];
+  if (!spawnB) return;
+
+  spendCost(def.cost);
+  const sx = (spawnB.gx + spawnB.size / 2) * TILE + (Math.random() * 28 - 14);
+  const sy = (spawnB.gy + spawnB.size / 2) * TILE + (Math.random() * 28 - 14);
+  state.units.push(createUnit(def, sx, sy));
+  state.trainedCount++;
+  gainXP(12);
+  addLog(`${def.name} orduya katıldı!`, "info");
+  renderHUD();
+  renderLeftPanel();
+}
+
+function collectBuilding(uid) {
+  const b = state.buildings.find(x => x.uid === uid);
+  if (!b || b.stored < 1) return;
+  const def = BUILDINGS_DB.find(d => d.id === b.defId);
+  if (!def.produces) return;
+  const amt = Math.floor(b.stored);
+  state.resources[def.produces.type] += amt;
+  b.stored -= amt;
+  state.collectedCount++;
+  gainXP(5);
+  state.floaters.push({ x: (b.gx + b.size / 2) * TILE, y: b.gy * TILE, text: `+${amt} ${def.produces.type}`, color: "#4ade80", life: 1.0 });
+  renderHUD();
+  renderLeftPanel();
+  renderInspector();
+}
+
+function collectAll() {
+  let count = 0;
+  for (const b of state.buildings) {
+    if (b.stored >= 1) {
+      const def = BUILDINGS_DB.find(d => d.id === b.defId);
+      if (def.produces) {
+        const amt = Math.floor(b.stored);
+        state.resources[def.produces.type] += amt;
+        b.stored -= amt;
+        count += amt;
+        state.floaters.push({ x: (b.gx + b.size / 2) * TILE, y: b.gy * TILE, text: `+${amt}`, color: "#4ade80", life: 1.0 });
+      }
+    }
+  }
+  if (count > 0) {
+    state.collectedCount++;
+    gainXP(8);
+    addLog(`Depolardan ${count} birim kaynak toplandı.`, "good");
+    renderHUD();
+    renderLeftPanel();
+    renderInspector();
+  }
+}
+
+function demolishSelected() {
+  const idx = state.buildings.findIndex(b => b.uid === selectedBuildingUid);
+  if (idx === -1 || state.buildings[idx].defId === "command_center") return;
+  state.buildings.splice(idx, 1);
+  selectedBuildingUid = null;
+  renderHUD();
+  renderLeftPanel();
+  renderInspector();
+}
+
+function startMission() {
+  if (state.inMission) return;
+  state.inMission = true;
+  cancelBuildMode();
+  const w = state.wave;
+  const count = 3 + w * 2;
+
+  const poolNames =
+    w === 1 ? ["Orc Zoldier", "Orc Swordsman"] :
+    w === 2 ? ["Orc Zoldier", "Small Alien", "Claw Alien"] :
+    w === 3 ? ["Orc Knifethrower", "Basic Ork Tank", "Venom Spider"] :
+    w === 4 ? ["Ork Bear Knight", "Red Tank", "Tusk Alien"] :
+    w <= 6 ? ["Ork Kopta", "Orc Big Tank", "Red Handsaw Ork", "T-Rex"] :
+             ["UFO", "Horned Beast Ork", "Big Spider", "Red Dragon", "GolemBoss"];
+
+  for (let i = 0; i < count; i++) {
+    const pickName = poolNames[i % poolNames.length];
+    const ref = UNITS_DB.find(u => u.name === pickName) || UNITS_DB[0];
+    const hpScale = w > 6 ? 1 + (w - 6) * 0.15 : 1;
+    state.enemies.push({
+      uid: uidCounter++,
+      name: ref.name,
+      x: (COLS - 0.5) * TILE + Math.random() * 20,
+      y: (1.5 + Math.random() * (ROWS - 3)) * TILE,
+      hp: Math.round(ref.life * hpScale),
+      maxHp: Math.round(ref.life * hpScale),
+      attack: Math.round(ref.attack * hpScale),
+      defense: ref.defense,
+      range: ref.range,
+      speed: ref.speed,
+      cooldown: 0,
+      isTitan: ref.isTitan,
+      color: ref.isTitan ? "#b91c1c" : "#ef4444"
+    });
+  }
+  addLog(`Dalga ${w} başladı! ${count} düşman (${poolNames.join(", ")}) saldırıyor.`, "bad");
+  renderHUD();
+  renderLeftPanel();
+}
+
+/* ============================================================================
+ * 7. CANVAS & SİMÜLASYON
+ * ==========================================================================*/
+canvas.addEventListener("mousemove", e => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const sy = (e.clientY - rect.top) * (canvas.height / rect.height);
+  hoverTile = { gx: Math.floor(sx / TILE), gy: Math.floor(sy / TILE) };
+});
+canvas.addEventListener("mouseleave", () => hoverTile = null);
+
+canvas.addEventListener("click", e => {
+  const rect = canvas.getBoundingClientRect();
+  const sx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const sy = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const gx = Math.floor(sx / TILE);
+  const gy = Math.floor(sy / TILE);
+
+  if (buildSelectedId) {
+    const def = BUILDINGS_DB.find(b => b.id === buildSelectedId);
+    if (!canAffordBuilding(def)) return addLog("Yeterli kaynak yok.", "bad");
+    if (!isAreaFree(gx, gy, def.size)) return addLog("Alan dolu veya sınırı aşıyor.", "bad");
+    spendBuilding(def);
+    const nb = createBuilding(def.id, gx, gy);
+    state.buildings.push(nb);
+    selectedBuildingUid = nb.uid;
+    gainXP(15 + def.level);
+    addLog(`${def.name} inşa edildi!`, "good");
+    cancelBuildMode();
+    renderHUD();
+    renderLeftPanel();
+    renderInspector();
+    return;
+  }
+
+  const clicked = state.buildings.find(b => gx >= b.gx && gx < b.gx + b.size && gy >= b.gy && gy < b.gy + b.size);
+  if (clicked) {
+    selectedBuildingUid = clicked.uid;
+    if (clicked.stored >= 3) collectBuilding(clicked.uid);
+    renderInspector();
+  } else {
+    selectedBuildingUid = null;
+    renderInspector();
+  }
+});
+
+window.addEventListener("keydown", e => { if (e.key === "Escape") cancelBuildMode(); });
+
+let lastTime = performance.now();
+function update(dt) {
+  const siloMult = getSiloMultiplier();
+
+  for (const b of state.buildings) {
+    const def = BUILDINGS_DB.find(d => d.id === b.defId);
+    if (def.produces) {
+      const ratePerSec = (def.produces.rate * siloMult) / 10;
+      const cap = def.produces.cap * siloMult;
+      b.stored = Math.min(cap, b.stored + ratePerSec * dt);
+    }
+    if (def.id === "hospital" && state.inMission) {
+      const bx = (b.gx + b.size / 2) * TILE, by = (b.gy + b.size / 2) * TILE;
+      for (const u of state.units) {
+        if (u.hp < u.maxHp && Math.hypot(u.x - bx, u.y - by) < 7 * TILE) u.hp = Math.min(u.maxHp, u.hp + 15 * dt);
+      }
+    }
+  }
+
+  if (state.inMission && state.enemies.length > 0) {
+    // Savunma yapıları (Attack & Range birebir Kodeksten)
+    for (const b of state.buildings) {
+      const def = BUILDINGS_DB.find(d => d.id === b.defId);
+      if (def.attack <= 0) continue;
+      b.cooldown -= dt;
+      if (b.cooldown <= 0) {
+        const bx = (b.gx + b.size / 2) * TILE, by = (b.gy + b.size / 2) * TILE;
+        let target = null, minDist = def.range * TILE;
+        for (const en of state.enemies) {
+          const d = Math.hypot(en.x - bx, en.y - by);
+          if (d <= minDist) { minDist = d; target = en; }
+        }
+        if (target) {
+          state.projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, target, isEnemy: false, dmg: def.attack, speed: 380, color: "#facc15" });
+          b.cooldown = 0.55;
+        }
+      }
+    }
+
+    // Dost birimler
+    for (const u of state.units) {
+      const def = UNITS_DB.find(d => d.id === u.defId);
+      if (!def) continue;
+      u.cooldown -= dt;
+      const spdPx = def.speed * 10;
+      const rngPx = Math.max(1.2, def.range) * TILE;
+
+      if (def.isHealer) {
+        let injured = null, minD = Infinity;
+        for (const ally of state.units) {
+          if (ally.hp < ally.maxHp) {
+            const d = Math.hypot(ally.x - u.x, ally.y - u.y);
+            if (d < minD) { minD = d; injured = ally; }
+          }
+        }
+        if (injured) {
+          if (minD > rngPx) {
+            const ang = Math.atan2(injured.y - u.y, injured.x - u.x);
+            u.x += Math.cos(ang) * spdPx * dt;
+            u.y += Math.sin(ang) * spdPx * dt;
+          } else if (u.cooldown <= 0) {
+            injured.hp = Math.min(injured.maxHp, injured.hp + def.attack);
+            state.floaters.push({ x: injured.x, y: injured.y - 10, text: `+${def.attack}`, color: "#4ade80", life: 0.6 });
+            u.cooldown = 0.8;
+          }
+          continue;
+        }
+      }
+
+      if (def.isWorker) {
+        let dmgB = state.buildings.find(b => b.hp < b.maxHp);
+        if (dmgB) {
+          const bx = (dmgB.gx + dmgB.size / 2) * TILE, by = (dmgB.gy + dmgB.size / 2) * TILE;
+          const d = Math.hypot(bx - u.x, by - u.y);
+          if (d > TILE * 2) {
+            const ang = Math.atan2(by - u.y, bx - u.x);
+            u.x += Math.cos(ang) * spdPx * dt;
+            u.y += Math.sin(ang) * spdPx * dt;
+          } else if (u.cooldown <= 0) {
+            dmgB.hp = Math.min(dmgB.maxHp, dmgB.hp + def.attack * 2);
+            u.cooldown = 0.7;
+          }
+          continue;
+        }
+      }
+
+      let target = null, minDist = Infinity;
+      for (const en of state.enemies) {
+        const d = Math.hypot(en.x - u.x, en.y - u.y);
+        if (d < minDist) { minDist = d; target = en; }
+      }
+      if (target) {
+        if (minDist > rngPx) {
+          const ang = Math.atan2(target.y - u.y, target.x - u.x);
+          u.x += Math.cos(ang) * spdPx * dt;
+          u.y += Math.sin(ang) * spdPx * dt;
+        } else if (u.cooldown <= 0) {
+          if (def.isKamikaze) {
+            target.hp -= def.attack;
+            u.hp = 0;
+            state.floaters.push({ x: target.x, y: target.y - 10, text: `BOOM -${def.attack}`, color: "#fb7185", life: 0.8 });
+          } else {
+            state.projectiles.push({ x: u.x, y: u.y, tx: target.x, ty: target.y, target, isEnemy: false, dmg: def.attack, speed: 340, color: def.color });
+            u.cooldown = 0.75;
+          }
+        }
+      }
+    }
+
+    // Düşmanlar
+    for (const en of state.enemies) {
+      en.cooldown -= dt;
+      const spdPx = en.speed * 10;
+      const rngPx = Math.max(1.2, en.range) * TILE;
+      let target = null, tType = null, minDist = Infinity;
+      for (const u of state.units) {
+        const d = Math.hypot(u.x - en.x, u.y - en.y);
+        if (d < minDist) { minDist = d; target = u; tType = "unit"; }
+      }
+      for (const b of state.buildings) {
+        const bx = (b.gx + b.size / 2) * TILE, by = (b.gy + b.size / 2) * TILE;
+        const d = Math.hypot(bx - en.x, by - en.y);
+        if (d < minDist) { minDist = d; target = b; tType = "building"; }
+      }
+      if (target) {
+        const tx = tType === "unit" ? target.x : (target.gx + target.size / 2) * TILE;
+        const ty = tType === "unit" ? target.y : (target.gy + target.size / 2) * TILE;
+        if (minDist > rngPx) {
+          const ang = Math.atan2(ty - en.y, tx - en.x);
+          en.x += Math.cos(ang) * spdPx * dt;
+          en.y += Math.sin(ang) * spdPx * dt;
+        } else if (en.cooldown <= 0) {
+          state.projectiles.push({ x: en.x, y: en.y, tx, ty, target, tType, isEnemy: true, dmg: en.attack, speed: 300, color: "#ef4444" });
+          en.cooldown = 0.9;
+        }
+      }
+    }
+  }
+
+  for (let i = state.projectiles.length - 1; i >= 0; i--) {
+    const p = state.projectiles[i];
+    const dx = p.tx - p.x, dy = p.ty - p.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 10) {
+      if (p.target && p.target.hp > 0) {
+        const dmg = Math.max(1, Math.round(p.dmg));
+        p.target.hp -= dmg;
+        state.floaters.push({ x: p.tx, y: p.ty - 8, text: `-${dmg}`, color: p.isEnemy ? "#f87171" : "#facc15", life: 0.55 });
+      }
+      state.projectiles.splice(i, 1);
+    } else {
+      p.x += (dx / dist) * p.speed * dt;
+      p.y += (dy / dist) * p.speed * dt;
+    }
+  }
+
+  state.enemies = state.enemies.filter(e => e.hp > 0);
+  state.units = state.units.filter(u => u.hp > 0);
+  const ccAlive = state.buildings.some(b => b.defId === "command_center" && b.hp > 0);
+  state.buildings = state.buildings.filter(b => b.hp > 0);
+
+  if (state.inMission) {
+    if (!ccAlive || state.buildings.length === 0) {
+      state.inMission = false;
+      state.enemies = [];
+      state.projectiles = [];
+      if (!ccAlive) state.buildings.unshift(createBuilding("command_center", 2, 8));
+      addLog("Komuta Merkezin düştü! Acil onarım yapıldı.", "bad");
+      renderHUD();
+      renderLeftPanel();
+    } else if (state.enemies.length === 0) {
+      state.inMission = false;
+      const rwG = 250 + state.wave * 120;
+      const rwW = 140 + state.wave * 60;
+      const rwS = 100 + state.wave * 45;
+      const rwO = 70 + state.wave * 30;
+      state.resources.gold += rwG; state.resources.wood += rwW;
+      state.resources.steel += rwS; state.resources.oil += rwO;
+      state.resources.cash += 3;
+      gainXP(55 + state.wave * 20);
+      state.buildings.forEach(b => b.hp = b.maxHp);
+      addLog(`Dalga ${state.wave} zaferle bitti! (+${rwG} Gold, +${rwW} Wood, +${rwS} Steel, +3 Cash)`, "good");
+      state.wave++;
+      renderHUD();
+      renderLeftPanel();
+      renderInspector();
+    }
+  }
+
+  for (let i = state.floaters.length - 1; i >= 0; i--) {
+    state.floaters[i].y -= 20 * dt;
+    state.floaters[i].life -= dt;
+    if (state.floaters[i].life <= 0) state.floaters.splice(i, 1);
+  }
+}
+
+const SECTION_COLORS = {
+  Village: "#0284c7",
+  Defense: "#dc2626",
+  Army: "#059669",
+  Wonders: "#d97706",
+  Decorations: "#65a30d",
+  "Limited Edition": "#9333ea"
+};
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= COLS; c++) { ctx.beginPath(); ctx.moveTo(c * TILE, 0); ctx.lineTo(c * TILE, canvas.height); ctx.stroke(); }
+  for (let r = 0; r <= ROWS; r++) { ctx.beginPath(); ctx.moveTo(0, r * TILE); ctx.lineTo(canvas.width, r * TILE); ctx.stroke(); }
+
+  if (buildSelectedId && hoverTile) {
+    const def = BUILDINGS_DB.find(b => b.id === buildSelectedId);
+    const ok = isAreaFree(hoverTile.gx, hoverTile.gy, def.size);
+    ctx.fillStyle = ok ? "rgba(74, 222, 128, 0.35)" : "rgba(239, 68, 68, 0.35)";
+    ctx.fillRect(hoverTile.gx * TILE, hoverTile.gy * TILE, def.size * TILE, def.size * TILE);
+    if (def.range > 0) {
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.45)";
+      ctx.beginPath();
+      ctx.arc((hoverTile.gx + def.size / 2) * TILE, (hoverTile.gy + def.size / 2) * TILE, def.range * TILE, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  for (const b of state.buildings) {
+    const def = BUILDINGS_DB.find(d => d.id === b.defId);
+    const x = b.gx * TILE + 2, y = b.gy * TILE + 2, w = b.size * TILE - 4, h = b.size * TILE - 4;
+
+    ctx.fillStyle = def.id === "command_center" ? "#1d4ed8" : def.sub === "Walls" ? "#475569" : def.sub === "Factories" ? "#ca8a04" : (SECTION_COLORS[def.section] || "#334155");
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = b.uid === selectedBuildingUid ? "#38bdf8" : "#090e1a";
+    ctx.lineWidth = b.uid === selectedBuildingUid ? 2.5 : 1.5;
+    ctx.strokeRect(x, y, w, h);
+
+    if (w >= 40) {
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 9.5px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(def.name.slice(0, Math.max(5, def.size * 4)), x + w / 2, y + h / 2 + 3);
+    }
+
+    if (b.hp < b.maxHp) {
+      ctx.fillStyle = "#000"; ctx.fillRect(x, y - 4, w, 3);
+      ctx.fillStyle = "#22c55e"; ctx.fillRect(x, y - 4, w * (b.hp / b.maxHp), 3);
+    }
+
+    if (b.stored >= 5) {
+      ctx.fillStyle = "#facc15";
+      ctx.beginPath(); ctx.arc(x + w - 6, y + 6, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#000"; ctx.font = "bold 9px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("!", x + w - 6, y + 9);
+    }
+  }
+
+  for (const u of state.units) {
+    const def = UNITS_DB.find(d => d.id === u.defId);
+    const rad = def && def.isTitan ? 9 : 6;
+    ctx.fillStyle = def ? def.color : "#38bdf8";
+    ctx.beginPath(); ctx.arc(u.x, u.y, rad, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = def && def.isAir ? "#fff" : "#090e1a";
+    ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = "#000"; ctx.fillRect(u.x - 9, u.y - rad - 5, 18, 2.5);
+    ctx.fillStyle = "#4ade80"; ctx.fillRect(u.x - 9, u.y - rad - 5, 18 * (u.hp / u.maxHp), 2.5);
+  }
+
+  for (const en of state.enemies) {
+    const rad = en.isTitan ? 9 : 6.5;
+    ctx.fillStyle = en.color;
+    ctx.beginPath(); ctx.arc(en.x, en.y, rad, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#450a0a"; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = "#000"; ctx.fillRect(en.x - 9, en.y - rad - 5, 18, 2.5);
+    ctx.fillStyle = "#f87171"; ctx.fillRect(en.x - 9, en.y - rad - 5, 18 * (en.hp / en.maxHp), 2.5);
+  }
+
+  for (const p of state.projectiles) {
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
+  }
+
+  for (const f of state.floaters) {
+    ctx.fillStyle = f.color;
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(f.text, f.x, f.y);
+  }
+}
+
+function loop(now) {
+  const dt = Math.min(0.05, (now - lastTime) / 1000);
+  lastTime = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* ============================================================================
+ * 8. KODEKS MODALI
+ * ==========================================================================*/
+function openCodex() { document.getElementById("codex-modal").classList.add("open"); renderCodex(); }
+function closeCodex() { document.getElementById("codex-modal").classList.remove("open"); }
+function setCodexCat(cat) {
+  codexCat = cat;
+  document.querySelectorAll("#codex-cat-tabs button").forEach(b => {
+    const target = cat === "Units" ? "Birimler" : cat === "All" ? "Tüm Binalar" : cat;
+    b.classList.toggle("active", b.textContent.startsWith(target));
+  });
+  renderCodex();
+}
+
+function renderCodex() {
+  const q = document.getElementById("codex-search").value.trim().toLowerCase();
+  const grid = document.getElementById("codex-grid");
+  grid.innerHTML = "";
+
+  if (codexCat === "Units") {
+    const list = UNITS_DB.filter(u => !q || u.name.toLowerCase().includes(q) || (u.trainedIn && u.trainedIn.toLowerCase().includes(q)));
+    for (const u of list) {
+      const div = document.createElement("div");
+      div.className = "codex-card";
+      div.innerHTML = `
+        <div class="item-head"><strong>${u.name}</strong><span class="badge">Pop: ${u.population}</span></div>
+        <div class="costs"><b>${formatUnitCost(u)}</b></div>
+        <div class="stat-table">
+          <span>Can: <b>${u.life.toLocaleString()}</b></span>
+          <span>Saldırı: <b>${u.attack}</b></span>
+          <span>Savunma: <b>${u.defense}</b></span>
+          <span>Hız: <b>${u.speed}</b></span>
+          <span>Menzil: <b>${u.range}</b></span>
+          <span>Nüfus: <b>${u.population}</b></span>
+          ${u.trainedIn ? `<span style="grid-column:span 2">Eğitim: <b>${u.trainedIn}</b></span>` : ""}
+        </div>
+      `;
+      grid.appendChild(div);
+    }
+    return;
+  }
+
+  const list = BUILDINGS_DB.filter(b => (codexCat === "All" || b.section === codexCat) &&
+    (!q || b.name.toLowerCase().includes(q) || (b.trains && b.trains.toLowerCase().includes(q)) || b.sub.toLowerCase().includes(q)));
+
+  for (const b of list) {
+    const div = document.createElement("div");
+    div.className = "codex-card";
+    div.innerHTML = `
+      <div class="item-head"><strong>${b.name}</strong><span class="badge">${b.section} · ${b.sub}</span></div>
+      <div class="stat-table">
+        <span>Maliyet: <b>${b.costVal.toLocaleString()} ${b.costType}</b></span>
+        <span>Seviye: <b>${b.level}</b></span>
+        <span>Boyut: <b>${b.size}x${b.size}</b></span>
+        <span>Can: <b>${b.life.toLocaleString()}</b></span>
+        ${b.attack ? `<span>Saldırı: <b>${b.attack}</b></span><span>Menzil: <b>${b.range}</b></span>` : ""}
+        ${b.population ? `<span>Nüfus: <b>${b.population.toLocaleString()}</b></span>` : ""}
+        ${b.trains ? `<span style="grid-column:span 2">Eğitir: <b>${b.trains}</b></span>` : ""}
+      </div>
+    `;
+    grid.appendChild(div);
+  }
+}
+
+function resetGame() {
+  state = initialState();
+  selectedBuildingUid = null;
+  cancelBuildMode();
+  document.getElementById("log-box").innerHTML = "";
+  addLog("145 Bina ve 303 Birim Kodeksi yüklendi! İlk hedefinle başla.", "info");
+  renderHUD();
+  renderLeftPanel();
+  renderInspector();
+}
+
+resetGame();
+setInterval(() => { renderHUD(); if (selectedBuildingUid) renderInspector(); }, 1000);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
